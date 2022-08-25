@@ -1,0 +1,13 @@
+FROM lambci/lambda:build-python3.8
+
+WORKDIR /tmp
+
+RUN pip install requests psycopg["binary"] -t /asset
+
+COPY stack/db/handler.py /asset/handler.py
+
+# https://stackoverflow.com/a/61746719
+# Turns out, asyncio is part of python
+RUN rm -rf /asset/asyncio*
+
+CMD ["echo", "hello world"]

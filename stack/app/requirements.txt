@@ -1,0 +1,4 @@
+timvt @ git+https://github.com/developmentseed/timvt
+tifeatures @ git+https://github.com/developmentseed/tifeatures
+
+mangum>=0.10.0
