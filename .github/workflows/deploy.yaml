@@ -22,37 +22,8 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Bootstrap account
+      - name: Run
         shell: bash
         run: |
           cd /opt
-          make bootstrap
-      - name: Install ctls
-        shell: bash
-        run: |
-          cd /opt
-          make install-dependencies
-      - name: Deploy cloud infra
-        shell: bash
-        run: |
-          cd /opt
-          make deploy-cloud
-      - name: Load K8s context
-        run: |
-          cd /opt
-          make k8s
-      - name: Test K8s cluster
-        run: |
-          kubectl get no
-      - name: Deploy nginx ingresscontroller
-        run: |
-          cd /opt
-          make deploy-nginx-ingresscontroller
-      - name: Deploy DNS record
-        run: |
-          cd /opt
-          make set-dns-record
-      - name: Deploy cloud infra
-        run: |
-          cd /opt
-          make deploy-che
+          ./entrypoint.sh
