@@ -22,7 +22,7 @@ WORKDIR /opt
 
 COPY requirements-cdk.txt requirements-cdk.txt
 
-RUN python3 -m pip install requirements-cdk.txt
+RUN python3 -m pip install -r requirements-cdk.txt
 
 FROM root
 
