@@ -1,4 +1,4 @@
-"""STACK Configs."""
+"""Stack Configs."""
 
 from typing import Optional
 
