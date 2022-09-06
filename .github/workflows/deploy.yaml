@@ -22,7 +22,12 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - name: Run
+      - name: Bootstrap
         shell: bash
-        run: |
-          /opt/entrypoint.sh
+        run: cdk bootstrap --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
+      - name: Synth
+        shell: bash
+        run: cdk synth --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
+      - name: Deploy
+        shell: bash
+        run: cdk deploy --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
