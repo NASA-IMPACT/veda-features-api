@@ -26,6 +26,8 @@ RUN python3 -m pip install -r requirements-cdk.txt
 
 FROM root
 
+WORKDIR /opt
+
 COPY . .
 
 CMD '/opt/entrypoint.sh'

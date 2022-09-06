@@ -24,10 +24,16 @@ jobs:
     steps:
       - name: Bootstrap
         shell: bash
-        run: cdk bootstrap --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
+        run: |
+          cd /opt
+          cdk bootstrap --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
       - name: Synth
         shell: bash
-        run: cdk synth --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
+        run: |
+          cd /opt
+          cdk synth --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
       - name: Deploy
         shell: bash
-        run: cdk deploy --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
+        run: |
+          cd /opt
+          cdk deploy --qualifier ${QUALIFIER} --toolkit-stack-name ${QUALIFIER}
