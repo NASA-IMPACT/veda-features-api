@@ -25,5 +25,4 @@ jobs:
       - name: Run
         shell: bash
         run: |
-          cd /opt
-          ./entrypoint.sh
+          /opt/entrypoint.sh
