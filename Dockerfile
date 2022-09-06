@@ -20,7 +20,9 @@ RUN ./aws/install
 
 WORKDIR /opt
 
-RUN python3 -m pip install requirements.txt
+COPY requirements-cdk.txt requirements-cdk.txt
+
+RUN python3 -m pip install requirements-cdk.txt
 
 FROM root
 
