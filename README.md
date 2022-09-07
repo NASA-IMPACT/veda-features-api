@@ -11,3 +11,8 @@ After deploying, an stdout with the url to the endpoint and the AWS secret ARN w
 To add append to a table:
 
 `ogr2ogr -f "PostgreSQL" PG:"host=HOST dbname=DBNAME user=USER password=PASSWORD" "LargeFires_2012-2020.gpkg" -nln fire_boundaries2 -append`
+
+#### Commiting
+We use this action to create tags https://github.com/mathieudutour/github-tag-action
+
+This uses [conventional commit methodology](https://www.conventionalcommits.org/en/v1.0.0/) to create tags using the logic detailed [here](https://github.com/mathieudutour/github-tag-action#bumping)
