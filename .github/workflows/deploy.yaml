@@ -8,7 +8,6 @@ on:
 
 jobs:
   deploy:
-    needs: [tests, publish]
     runs-on: ubuntu-latest
     if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
 
