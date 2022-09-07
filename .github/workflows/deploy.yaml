@@ -39,4 +39,4 @@ jobs:
 
       # Build and Deploy CDK application
       - name: Build & Deploy
-        run: npm run cdk deploy veda-features-api -- --require-approval never
+        run: npm run cdk deploy tifeatures-timvt-staging -- --require-approval never
