@@ -3,3 +3,5 @@ cdk.out
 .idea
 
 .env
+.ipynb_checkpoints
+data/
