@@ -25,3 +25,7 @@ To add append to a table:
 We use this action to create tags https://github.com/mathieudutour/github-tag-action
 
 This uses [conventional commit methodology](https://www.conventionalcommits.org/en/v1.0.0/) to create tags using the logic detailed [here](https://github.com/mathieudutour/github-tag-action#bumping)
+
+# License
+This project is licensed under **Apache 2**, see the [LICENSE](LICENSE) file for more details.
+
