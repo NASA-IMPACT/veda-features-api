@@ -187,6 +187,10 @@ class LambdaStack(core.Stack):
             ).to_string(),
         }
 
+        env = {}
+        env["DB_MIN_CONN_SIZE"] = "1"
+        env["DB_MAX_CONN_SIZE"] = "1"
+
         api_function = aws_lambda.Function(
             self,
             f"{id}-vector-lambda",
@@ -201,6 +205,7 @@ class LambdaStack(core.Stack):
             handler="handler.handler",
             memory_size=api_settings.memory,
             timeout=core.Duration.seconds(api_settings.timeout),
+            environment=env,
             log_retention=logs.RetentionDays.ONE_WEEK,
         )
         for k, v in db_secrets.items():

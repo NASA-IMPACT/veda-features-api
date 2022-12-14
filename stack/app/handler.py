@@ -1,7 +1,10 @@
 
+import os
+import asyncio
+
 from tifeatures.db import close_db_connection, connect_to_db, register_table_catalog
-from tifeatures.factory import Endpoints
-from timvt.factory import VectorTilerFactory
+from tifeatures.factory import Endpoints as FeaturesEndpoints
+# from timvt.factory import VectorTilerFactory
 from fastapi import FastAPI
 from starlette_cramjam.middleware import CompressionMiddleware
 
@@ -14,8 +17,8 @@ app = FastAPI(
 )
 
 # Register endpoints.
-endpoints = Endpoints()
-app.include_router(endpoints.router, tags=["Features"])
+endpoints = FeaturesEndpoints()
+app.include_router(endpoints.router, tags=["OGC Features"])
 
 # By default the VectorTilerFactory will only create tiles/ and tilejson.json endpoints
 # mvt_endpoints = VectorTilerFactory()
@@ -39,4 +42,8 @@ async def shutdown_event() -> None:
     await close_db_connection(app)
 
 
-handler = Mangum(app)
+handler = Mangum(app, lifespan="off")
+
+if "AWS_EXECUTION_ENV" in os.environ:
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(app.router.startup())
