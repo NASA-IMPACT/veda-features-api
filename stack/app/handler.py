@@ -4,7 +4,6 @@ import asyncio
 
 from tifeatures.db import close_db_connection, connect_to_db, register_table_catalog
 from tifeatures.factory import Endpoints as FeaturesEndpoints
-# from timvt.factory import VectorTilerFactory
 from fastapi import FastAPI
 from starlette_cramjam.middleware import CompressionMiddleware
 
