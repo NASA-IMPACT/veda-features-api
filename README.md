@@ -21,6 +21,12 @@ To add append to a table:
 
 `ogr2ogr -f "PostgreSQL" PG:"host=HOST dbname=DBNAME user=USER password=PASSWORD" "LargeFires_2012-2020.gpkg" -nln fire_boundaries2 -append`
 
+## Docker for local development
+
+To run locally on docker use:
+
+`docker compose up`
+
 ## Commiting
 We use this action to create tags https://github.com/mathieudutour/github-tag-action
 
