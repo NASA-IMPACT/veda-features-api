@@ -9,7 +9,7 @@ class APISettings(pydantic.BaseSettings):
     """Application settings"""
 
     name: str = "tifeatures-timvt"
-    stage: str = "staging"
+    stage: str = "dev"
 
     owner: Optional[str]
     client: Optional[str]
