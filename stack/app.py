@@ -155,7 +155,7 @@ class LambdaStack(core.Stack):
 
         setup_db = BootstrappedDb(
             self,
-            "STAC DB for EIS Fires",
+            "Features DB for EIS Fires",
             db=db,
             new_dbname=db_settings.dbname,
             new_username=db_settings.user,

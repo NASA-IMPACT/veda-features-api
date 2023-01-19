@@ -19,7 +19,7 @@ services:
     depends_on:
     - database
     command:
-      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 --timeout=30
+      bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 --timeout=0
       && uvicorn app.handler:app --host 0.0.0.0 --port 8081 --reload"
     volumes:
       - ./scripts:/tmp/scripts
@@ -32,7 +32,7 @@ services:
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=postgis
     ports:
-      - "5439:5432"
+      - "5432:5432"
     command: postgres -N 500
     volumes:
       - ./.pgdata:/var/lib/postgresql/data
