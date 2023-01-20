@@ -1,0 +1,4 @@
+FROM ghcr.io/vincentsarago/postgis:14-3.3
+
+#sample data
+# COPY data /docker-entrypoint-initdb.d/
