@@ -6,7 +6,6 @@ from tipg.db import close_db_connection, connect_to_db, register_collection_cata
 from tipg.factory import Endpoints as FeaturesEndpoints
 from fastapi import FastAPI
 from starlette_cramjam.middleware import CompressionMiddleware
-from tipg.settings import TableConfig, TableSettings
 
 from mangum import Mangum
 
@@ -21,8 +20,6 @@ endpoints = FeaturesEndpoints()
 app.include_router(endpoints.router, tags=["OGC Features"])
 
 app.add_middleware(CompressionMiddleware)
-
-print(TableSettings())
 
 @app.on_event("startup")
 async def startup_event() -> None:
