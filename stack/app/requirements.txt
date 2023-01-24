@@ -1,4 +1,5 @@
 timvt==0.8.0a2
 tifeatures==0.1.0a2
+git+https://github.com/developmentseed/tipg@51f4dd51d204945ca75ea35cf16cfa853397f9ce#egg=tipg
 
 mangum>=0.10.0
