@@ -2,7 +2,7 @@ node_modules
 cdk.out
 .idea
 
-.env
+.env*
 .ipynb_checkpoints
 data/
 
