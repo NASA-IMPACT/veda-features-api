@@ -4,6 +4,7 @@ import os
 
 from aws_lambda_powertools import Logger, Metrics, Tracer
 from aws_lambda_powertools.metrics import MetricUnit  # noqa: F401
+from aws_xray_sdk.core import xray_recorder
 from fastapi import FastAPI, Request, Response, APIRouter
 from fastapi.routing import APIRoute
 from mangum import Mangum
@@ -13,12 +14,16 @@ from tipg.db import close_db_connection, connect_to_db, register_collection_cata
 from tipg.factory import Endpoints as FeaturesEndpoints
 from typing import Callable
 
-
 logging.getLogger("mangum.lifespan").setLevel(logging.ERROR)
 logging.getLogger("mangum.http").setLevel(logging.ERROR)
 
-logger: Logger = Logger(service="veda-wfs3", namespace="veda-backend")
-metrics: Metrics = Metrics(service="veda-wfs3", namespace="veda-backend")
+# https://github.com/aws/aws-xray-sdk-python/issues/201
+xray_recorder.configure(
+    streaming_threshold=1
+)
+
+logger: Logger = Logger(service="veda-wfs3", namespace="veda-wfs3")
+metrics: Metrics = Metrics(service="veda-wfs3", namespace="veda-wfs3")
 tracer: Tracer = Tracer()
 
 
