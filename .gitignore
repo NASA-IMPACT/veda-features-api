@@ -6,4 +6,6 @@ cdk.out
 .ipynb_checkpoints
 data/
 
+*/__pycache__
+
 .pgdata
