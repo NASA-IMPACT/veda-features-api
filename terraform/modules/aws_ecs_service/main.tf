@@ -205,6 +205,7 @@ data "template_file" "container_definition" {
     container_environment = jsonencode(var.container_environment)
     service_protocol      = var.service_protocol
     service_port          = var.service_port
+    use_adot_as_sidecar   = var.use_adot_as_sidecar ? "on" : ""
     log_group             = aws_cloudwatch_log_group.service.name
     region                = var.region
   }
@@ -227,7 +228,7 @@ resource "aws_ecs_task_definition" "service" {
 # AWS Distro for Open Telemetry (ADOT)
 #######################################################################################
 resource "aws_ecs_service" "adot_service" {
-  count = var.use_adot ? 1 : 0
+  count = var.use_adot_as_service ? 1 : 0
   name                    = "tf-ADOT-${var.service_name}-${var.environment}"
   cluster                 = aws_ecs_cluster.service.id
   task_definition         = aws_ecs_task_definition.adot_service[0].arn
@@ -249,7 +250,7 @@ resource "aws_ecs_service" "adot_service" {
 }
 
 data "template_file" "adot_container_definition" {
-  count = var.use_adot ? 1 : 0
+  count = var.use_adot_as_service ? 1 : 0
   template = file("${path.module}/adot_container_definition.json")
 
   vars = {
@@ -259,7 +260,7 @@ data "template_file" "adot_container_definition" {
 }
 
 resource "aws_ecs_task_definition" "adot_service" {
-  count = var.use_adot ? 1 : 0
+  count = var.use_adot_as_service ? 1 : 0
   family                   = "tf-ADOT-${var.service_name}-${var.environment}"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
@@ -282,7 +283,7 @@ resource "aws_cloudwatch_log_group" "service" {
 }
 
 resource "aws_cloudwatch_log_group" "adot_service" {
-  count = var.use_adot ? 1 : 0
+  count = var.use_adot_as_service ? 1 : 0
   name              = "/ecs/tf-ADOT-${var.service_name}-sidecar-collector"
   retention_in_days = var.log_retention_days
   tags              = merge(var.tags, {fortarget="adot",})

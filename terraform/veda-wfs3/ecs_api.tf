@@ -41,7 +41,8 @@ module "ecs_cluster" {
   container_ingress_cidrs = ["0.0.0.0/0"]
   container_ingress_sg_ids = []
 
-  use_adot = true
+  use_adot_as_service = false
+  use_adot_as_sidecar = true
   use_ecr = true
   ecr_repository_name = module.ecr_registry.registry_name
   image = "${module.ecr_registry.repository_url}:latest"
