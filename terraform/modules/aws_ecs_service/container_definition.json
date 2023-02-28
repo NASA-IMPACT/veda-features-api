@@ -1,0 +1,29 @@
+[
+  {
+    "name": "tf-${service_name}-${environment}",
+    "image": "${image}",
+%{ if container_command != "" }
+    "command": ${container_command},
+%{ endif }
+%{ if working_directory != "" }
+    "workingDirectory": "${working_directory}",
+%{ endif }
+    "secrets": ${container_secrets},
+    "environment": ${container_environment},
+    "entryPoint": null,
+    "portMappings": [
+       {
+         "protocol": "${service_protocol}",
+         "containerPort": ${service_port}
+       }
+    ],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+  }
+]
