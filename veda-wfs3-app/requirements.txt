@@ -1,0 +1,10 @@
+timvt==0.8.0a2
+tifeatures==0.1.0a2
+git+https://github.com/developmentseed/tipg@51f4dd51d204945ca75ea35cf16cfa853397f9ce#egg=tipg
+aws-xray-sdk==2.11.0
+uvicorn==0.20.0
+boto3==1.26.28
+#####################################
+# used in testing
+#####################################
+#psycopg2-binary==2.9.5
