@@ -89,7 +89,7 @@ resource "aws_iam_role_policy" "api_ecs_execution_role_policy" {
 
 ##############################################################
 # give access for AWS OTEL for observability
-# https:#aws-otel.github.io/docs/setup/ecs
+# https:aws-otel.github.io/docs/setup/ecs
 # note that all the logging ones were added in to the base
 # role in "../modules/aws_ecs_service"
 #
