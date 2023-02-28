@@ -24,7 +24,7 @@ module "ecs_cluster" {
     {
       name = "DB_CONFIG"
       valueFrom = aws_secretsmanager_secret.db_config.arn
-    }
+    },
   ]
 
   container_environment = [
@@ -36,6 +36,22 @@ module "ecs_cluster" {
       name  = "IS_ECS"
       value = "True"
     },
+    {
+      name = "OTEL_PROPAGATORS"
+      value = "xray"
+    },
+    {
+      name = "OTEL_PYTHON_ID_GENERATOR"
+      value = "xray"
+    },
+    {
+      name = "OTEL_RESOURCE_ATTRIBUTES"
+      value = "service.name=veda-wfs3-${var.env}"
+    },
+    {
+      name = "OTEL_RESOURCE_ATTRIBUTES"
+      value = "service.name=veda-wfs3-${var.env}"
+    }
   ]
 
   container_ingress_cidrs = ["0.0.0.0/0"]

@@ -3,9 +3,10 @@ import os
 import sys
 import json
 
-from aws_xray_sdk.core import xray_recorder, patch_all
 from fastapi import FastAPI, Request, Response, APIRouter
 from fastapi.routing import APIRoute
+from opentelemetry import trace
+from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from starlette_cramjam.middleware import CompressionMiddleware
 from tipg.db import close_db_connection, connect_to_db, register_collection_catalog
 from tipg.factory import Endpoints as FeaturesEndpoints
@@ -22,17 +23,7 @@ logger.addHandler(handler)
 # :TECHDEBT: why do we need two `json.loads`?
 db_config = json.loads(json.loads(os.environ.get("DB_CONFIG")))
 
-logging.getLogger('aws_xray_sdk').setLevel(logging.DEBUG)
-plugins = ('ECSPlugin',)
-# https://github.com/aws/aws-xray-sdk-python/issues/201
-xray_recorder.configure(
-    service=f"veda-wfs3-{os.environ.get('ENVIRONMENT', 'dev')}",
-    streaming_threshold=0,
-    plugins=plugins,
-    context_missing='LOG_ERROR'
-)
-patch_all()
-
+tracer = trace.get_tracer(__name__)
 
 class LoggerRouteHandler(APIRoute):
 
@@ -40,14 +31,16 @@ class LoggerRouteHandler(APIRoute):
         original_route_handler = super().get_route_handler()
 
         async def route_handler(request: Request) -> Response:
-            # add fastapi context to logs
             ctx = {
                 "path": request.url.path,
                 "route": self.path,
                 "method": request.method,
             }
-            # TODO: metrics and structured logging setups here
-            return await original_route_handler(request)
+            with tracer.start_as_current_span("handle_request") as route_handler_span:
+                route_handler_span.set_attribute("request.context.path", ctx["path"])
+                route_handler_span.set_attribute("request.context.route", ctx["route"])
+                route_handler_span.set_attribute("request.context.method", ctx["method"])
+                return await original_route_handler(request)
 
         return route_handler
 
@@ -73,11 +66,14 @@ app.add_middleware(CompressionMiddleware)
 @app.on_event("startup")
 async def startup_event() -> None:
     """Connect to database on startup."""
-    await connect_to_db(app, settings=postgresql_settings)
-    await register_collection_catalog(app)
+    with tracer.start_as_current_span("startup_event"):
+        await connect_to_db(app, settings=postgresql_settings)
+        await register_collection_catalog(app)
 
 
 @app.on_event("shutdown")
 async def shutdown_event() -> None:
     """Close database connection."""
     await close_db_connection(app)
+
+FastAPIInstrumentor.instrument_app(app, excluded_urls="conformance")
