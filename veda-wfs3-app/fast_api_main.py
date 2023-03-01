@@ -25,6 +25,7 @@ db_config = json.loads(json.loads(os.environ.get("DB_CONFIG")))
 
 tracer = trace.get_tracer(__name__)
 
+
 class LoggerRouteHandler(APIRoute):
 
     def get_route_handler(self) -> Callable:
@@ -76,4 +77,4 @@ async def shutdown_event() -> None:
     """Close database connection."""
     await close_db_connection(app)
 
-FastAPIInstrumentor.instrument_app(app, excluded_urls="conformance")
+FastAPIInstrumentor.instrument_app(app, excluded_urls="/,/conformance")
