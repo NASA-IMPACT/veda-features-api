@@ -5,7 +5,7 @@ module "ecs_cluster" {
   vpc_id      = module.networking.vpc_id
   subnet_ids  = module.networking.private_subnets_id
 
-  service_name       = "${var.project_name}-service"
+  service_name       = "${var.project_name}-${var.env}-service"
   service_port       = var.service_port
   service_protocol   = "tcp"
   cpu                = 2048
@@ -57,8 +57,8 @@ module "ecs_cluster" {
   container_ingress_cidrs = ["0.0.0.0/0"]
   container_ingress_sg_ids = []
 
-  use_adot_as_service = false
-  use_adot_as_sidecar = true
+  use_adot_as_service = true
+  use_adot_as_sidecar = false
   use_ecr = true
   ecr_repository_name = module.ecr_registry.registry_name
   image = "${module.ecr_registry.repository_url}:latest"

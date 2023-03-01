@@ -277,14 +277,14 @@ resource "aws_ecs_task_definition" "adot_service" {
 # LOGGING
 ########################################################################
 resource "aws_cloudwatch_log_group" "service" {
-  name              = "/ecs/tf-${var.service_name}-task"
+  name              = "/ecs/tf-${var.service_name}-log-group"
   retention_in_days = var.log_retention_days
   tags              = var.tags
 }
 
 resource "aws_cloudwatch_log_group" "adot_service" {
   count = var.use_adot_as_service ? 1 : 0
-  name              = "/ecs/tf-ADOT-${var.service_name}-sidecar-collector"
+  name              = "/ecs/tf-adot-sidecar-collector-${var.service_name}-log-group"
   retention_in_days = var.log_retention_days
   tags              = merge(var.tags, {fortarget="adot",})
 }
