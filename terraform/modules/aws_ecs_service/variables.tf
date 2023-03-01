@@ -75,12 +75,6 @@ variable "use_ecr" {
   description = "If enabled, ECR read permissions are added to the role"
 }
 
-variable "use_adot_as_service" {
-  type        = bool
-  default     = false
-  description = "If enabled, setup another task definition for the service that gives us an open-telemetry collector in the service"
-}
-
 variable "use_adot_as_sidecar" {
   type        = bool
   default     = false

@@ -223,69 +223,11 @@ resource "aws_ecs_task_definition" "service" {
   container_definitions    = data.template_file.container_definition.rendered
 }
 
-
-#######################################################################################
-# AWS Distro for Open Telemetry (ADOT)
-#######################################################################################
-resource "aws_ecs_service" "adot_service" {
-  count = var.use_adot_as_service ? 1 : 0
-  name                    = "tf-ADOT-${var.service_name}-${var.environment}"
-  cluster                 = aws_ecs_cluster.service.id
-  task_definition         = aws_ecs_task_definition.adot_service[0].arn
-  desired_count           = 1
-  launch_type             = "FARGATE"
-  propagate_tags          = "SERVICE"
-  enable_ecs_managed_tags = true
-  enable_execute_command  = true
-  tags                    = merge(var.tags, {fortarget="adot",})
-
-  deployment_maximum_percent         = 200
-  deployment_minimum_healthy_percent = 100
-
-  network_configuration {
-    subnets          = var.subnet_ids
-    security_groups  = [aws_security_group.service.id]
-    //assign_public_ip = true
-  }
-}
-
-data "template_file" "adot_container_definition" {
-  count = var.use_adot_as_service ? 1 : 0
-  template = file("${path.module}/adot_container_definition.json")
-
-  vars = {
-    log_group             = aws_cloudwatch_log_group.adot_service[0].name
-    region                = var.region
-  }
-}
-
-resource "aws_ecs_task_definition" "adot_service" {
-  count = var.use_adot_as_service ? 1 : 0
-  family                   = "tf-ADOT-${var.service_name}-${var.environment}"
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  // total guess here given how many containers this damn service is using
-  cpu                      = 1024
-  memory                   = 2048
-  tags                     = merge(var.tags, {fortarget="adot",})
-  execution_role_arn       = aws_iam_role.ecs_execution_role.arn
-  task_role_arn            = aws_iam_role.ecs_execution_role.arn
-  container_definitions    = data.template_file.adot_container_definition[0].rendered
-}
-
 ########################################################################
 # LOGGING
 ########################################################################
 resource "aws_cloudwatch_log_group" "service" {
-  name              = "/ecs/tf-${var.service_name}-log-group"
+  name              = "/ecs/tf-${var.service_name}-${var.environment}-log-group"
   retention_in_days = var.log_retention_days
   tags              = var.tags
 }
-
-resource "aws_cloudwatch_log_group" "adot_service" {
-  count = var.use_adot_as_service ? 1 : 0
-  name              = "/ecs/tf-adot-sidecar-collector-${var.service_name}-log-group"
-  retention_in_days = var.log_retention_days
-  tags              = merge(var.tags, {fortarget="adot",})
-}
-
