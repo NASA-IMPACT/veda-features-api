@@ -8,9 +8,4 @@ resource "aws_security_group_rule" "rds_sg_allows_ecs_sg" {
   to_port           = 5432
   protocol          = "tcp"
   source_security_group_id =  module.ecs_cluster.service_security_group_id
-  depends_on = [
-    module.networking,
-    module.ecs_cluster
-  ]
-
 }

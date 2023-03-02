@@ -37,7 +37,7 @@ resource "aws_eip" "nat_eip" {
 resource "aws_nat_gateway" "nat" {
   allocation_id = aws_eip.nat_eip.id
   subnet_id     = element(aws_subnet.public_subnet.*.id, 0)
-  depends_on    = [aws_internet_gateway.ig]
+  #depends_on    = [aws_internet_gateway.ig]
 
   tags = merge({
     Name        = "${var.project_name}-${var.env}-${var.availability_zones[0]}-nat"
@@ -125,9 +125,10 @@ resource "aws_security_group" "default" {
   name        = "${var.project_name}-${var.env}-default-sg"
   description = "Default security group to allow inbound/outbound from the VPC"
   vpc_id      = aws_vpc.vpc.id
-  depends_on  = [aws_vpc.vpc]
+  #depends_on  = [aws_vpc.vpc]
 
   ingress {
+    description = ""
     from_port = "8080"
     to_port   = "8080"
     protocol  = "tcp"
