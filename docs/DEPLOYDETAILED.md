@@ -1,15 +1,20 @@
 ## Building Docker Image, Putting on ECR, Forcing a Deployment
 
-0. Make sure you've built your local docker branch and it's up to date with any branch changes
+This verbose and manual document show show exactly how our CI/CD deployment pipeline works. Take note that we 
+are using `grep` below to whittle down which project and environment we are targeting from all the potential output
+
+0. Install `jq` because it's awesome: https://formulae.brew.sh/formula/jq
+
+1. Make sure you've built your local docker branch and it's up to date with any branch changes
 
     ```bash
     $ docker build -t veda-wfs3-api:latest .
     ```
 
-1. List existing ECR repositories using "aws-cli":
+2. List existing ECR repositories using "aws-cli":
 
     ```bash
-    $ aws ecr describe-repositories 
+    $ AWS_PROFILE=<region> aws ecr describe-repositories 
     {
         "repositories": [
             {
@@ -29,17 +34,21 @@
         ]
     }
    
-    $ aws ecr describe-repositories | jq '.repositories[0].repositoryUri'
+    $ AWS_PROFILE=<region> aws ecr describe-repositories \
+        | jq '.repositories | map(.repositoryUri)' \
+        | grep 'veda-wfs3' | grep 'production'
     "359356595137.dkr.ecr.us-west-2.amazonaws.com/veda-wfs3-registry-production"
     ```
 
-2. Login to ECR from awscli:
+3. Login to ECR from awscli:
 
     ```bash
-    aws ecr describe-repositories | jq '.repositories[0].repositoryUri' | xargs -I {} bash -c "aws ecr get-login-password | docker login --username AWS --password-stdin {}"
+    AWS_PROFILE=<region> aws ecr describe-repositories \
+        | jq '.repositories[0].repositoryUri' \
+        | AWS_PROFILE=<region> xargs -I {} bash -c "aws ecr get-login-password | docker login --username AWS --password-stdin {}"
     ```
 
-3. Now re-tag the local image with the remote ECR repository and tag name:
+4. Now re-tag the local image with the remote ECR repository and tag name:
  
     ```bash
     $ aws ecr describe-repositories | jq '.repositories[0].repositoryUri' | xargs -I {} docker images --format "{{json . }}" {} | grep '"Tag":"latest"' | jq '"\(.Repository):\(.Tag)"' | xargs -I{} docker tag veda-wfs3-api:latest {}
@@ -61,7 +70,7 @@
     }
     ```
 
-4. Push the image from local to ECR:
+5. Push the image from local to ECR:
 
     ```bash
     $ aws ecr describe-repositories | jq '.repositories[0].repositoryUri' | xargs -I {} docker images --format "{{json . }}" {} | grep '"Tag":"latest"' | jq '"\(.Repository):\(.Tag)"' | xargs -I{} docker push {} 
@@ -86,7 +95,7 @@
     }
     ```
    
-5. Show your existing clusters:
+6. Show your existing clusters:
 
     ```bash
     $ aws ecs list-clusters                      

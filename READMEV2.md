@@ -28,18 +28,28 @@ Folks working on this project can play with development locally
 
 ### Continuous Deployment for `staging` and `production`
 
-Unless you're manually deploying a `dev` environment all deploys happen through the CI/CD Github Actions. So grok those for answers
+Unless you're manually deploying a `dev` environment all deploys happen through the CI/CD Github Actions. So please
+grok the `/.github/workflows/deploy.yaml`
 
-We use this action to create tags https://github.com/mathieudutour/github-tag-action
+We use a third-party action to create tags https://github.com/mathieudutour/github-tag-action
 
 This uses [conventional commit methodology](https://www.conventionalcommits.org/en/v1.0.0/) to create tags using the logic detailed [here](https://github.com/mathieudutour/github-tag-action#bumping)
 
 ---
 
-### Manual 'dev' Deployment
+### Manual Deployments 
 
-Because AWS Elastic IP limits we have been running `dev` deploys in `us-west-1`. Note that `/terraform/veda-wfs3/vars/dev.tf`
-is bound to that region
+[Mangual Deployments Explained](./docs/DEPLOYDETAILED.md)
+
+--- 
+
+### Infrastructure Changes 
+
+Note that each `./terraform/veda-wfs3/vars/<environment>.tf` file targets a different region:
+* `staging`, `production` deploys will be happening against `us-west-2`
+* `dev` deploys happen against `us-west-1`
+
+Steps:
 
 * install `tfenv` to manage multiple versions: [https://github.com/tfutils/tfenv](https://github.com/tfutils/tfenv)
 * our `init.tf` file has a `required_version = "1.3.9"` so install that:
@@ -52,12 +62,12 @@ $ tfenv list
 $ tfenv install 1.3.9
 $ tfenv use 1.3.9
 ```
-* make sure you setup an `AWS_PROFILE` in your `~/.aws/confg|credentials` files for `us-west-1`
-* then you can run `AWS_PROFILE=uah1 terraform init`
+* make sure you setup an `AWS_PROFILE` in your `~/.aws/confg|credentials` files for the correct region
+* then you can run `AWS_PROFILE=<region> terraform init`
 * make sure you `cp envtf.template .envtf.sh` and change values in there for secrets needed
 * then `source .envtf.sh`
 * then `cd /terraform/veda-wfs3`
-* then `AWS_PROFILE=uah1 terraform <plan|apply> -var-file=./vars/dev.tf`
+* then `AWS_PROFILE=<region> terraform <plan|apply> -var-file=./vars/<environment>.tf`
 
 ---
 
