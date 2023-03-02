@@ -116,6 +116,22 @@ resource "aws_security_group_rule" "service_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
+// bind the ECS service's SG as a source
+// to the VPC's default SG if it was passed as a variable
+resource "aws_security_group_rule" "rds_sg_allows_ecs_sg" {
+  for_each   = {
+    for index, rule in var.additional_sg_ingress_rules_for_vpc_default_sg:
+    rule.primary_key => rule # this works b/c one key has to be primary
+  }
+  description       = "Allow ESC to talk to RDS"
+  security_group_id = each.value.vpc_default_sg_id
+  type              = "ingress"
+  from_port         = each.value.from_port
+  to_port           = each.value.to_port
+  protocol          = each.value.protocol
+  source_security_group_id = aws_security_group.service.id
+}
+
 resource "aws_security_group_rule" "service_ingress_cidrs" {
   count             = length(var.container_ingress_cidrs) > 0 ? 1 : 0
   security_group_id = aws_security_group.service.id

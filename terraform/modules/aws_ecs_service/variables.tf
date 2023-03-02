@@ -69,6 +69,38 @@ variable "container_ingress_sg_ids" {
   type = set(string)
 }
 
+variable "additional_sg_ingress_rules_for_vpc_default_sg" {
+  #################################################
+  # EXAMPLE
+  #################################################
+  #  [
+  #    {
+  #      primary_key       = "1"
+  #      vpc_default_sg_id = "${module.networking.vpc_default_sg_id}"
+  #      protocol          = "tcp"
+  #      from_port         = 5432
+  #      to_port           = 5432
+  #    },
+  #    {
+  #      primary_key       = "2"
+  #      vpc_default_sg_id = "${module.networking.vpc_default_sg_id}"
+  #      protocol          = "tcp"
+  #      from_port         = 5000
+  #      to_port           = 5000
+  #    },
+  #  ]
+  #
+  type = list(object({
+    primary_key        = string
+    vpc_default_sg_id  = string
+    protocol           = string
+    from_port          = number
+    to_port            = number
+  }))
+  default = []
+  description = "If passed, this adds ingress rules to the VPC's default security group with ECS's security group as a source"
+}
+
 variable "use_ecr" {
   type        = bool
   default     = true
