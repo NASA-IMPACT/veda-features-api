@@ -4,8 +4,8 @@
 ##################################################################
 # only needed if you want to run `veda-wfs3-app/cd.sh` script
 ##################################################################
-TARGET_ENVIRONMENT=dev
-TARGET_PROJECT_NAME=veda-wfs3
+export TARGET_ENVIRONMENT=dev
+export TARGET_PROJECT_NAME=veda-wfs3
 
 ##################################################################
 # currently we don't want to encrypt/decrypt and store secrets in
@@ -14,4 +14,4 @@ TARGET_PROJECT_NAME=veda-wfs3
 # by TF) and pump them locally into runs through OS env var(s)
 ##################################################################
 # TODO: get this from AWS secret manager and hydrate locally, the SM key is `veda-wfs3-db-config`
-TF_VAR_db_password = ''
+export TF_VAR_db_password=''
