@@ -95,4 +95,5 @@ docs show some examples that are unfortunately out of date. The source code is p
 ---
 
 **4)** Finally, choose to "auto" instrument or "manually" instrument your application. This project uses "auto" instrumentation. Read more about the configuration differences and [which os env vars](https://aws-otel.github.io/docs/getting-started/python-sdk/trace-auto-instr)
-you'll want to set up to export your metrics to CloudWatch and traces to AWS xray. The TF in this repo adds these os environment vars to the container in `../terraform/veda-wfs3/ecs_api.tf`
+you'll want to set up to export your metrics to CloudWatch and traces to AWS xray. The TF in this repo adds these os environment vars to the container in `../terraform/veda-wfs3/ecs_api.tf`. And our fastapi startup
+script in `../veda-wfs3-app/startup.sh` bootstraps `uvicorn` with the `opentelemetry` patcher
