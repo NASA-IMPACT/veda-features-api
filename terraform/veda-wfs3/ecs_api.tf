@@ -1,5 +1,5 @@
 module "ecs_cluster" {
-  source = "../modules/aws_ecs_service"
+  source = "github.com/developmentseed/tf-seed/modules/aws_ecs_service"
   environment = var.env
   region      = var.region
   vpc_id      = module.networking.vpc_id
@@ -111,36 +111,3 @@ resource "aws_iam_role_policy" "api_ecs_execution_role_policy" {
   role   = module.ecs_cluster.ecs_execution_role_id
   policy = data.aws_iam_policy_document.api_ecs_execution_attachment.json
 }
-
-##############################################################
-# give access for AWS OTEL for observability
-# https:aws-otel.github.io/docs/setup/ecs
-# note that all the logging ones were added in to the base
-# role in "../modules/aws_ecs_service"
-#
-data "aws_iam_policy_document" "api_ecs_to_otel_access" {
-  statement {
-    actions = [
-        "xray:PutTraceSegments",
-        "xray:PutTelemetryRecords",
-        "xray:GetSamplingRules",
-        "xray:GetSamplingTargets",
-        "xray:GetSamplingStatisticSummaries",
-        "cloudwatch:PutMetricData",
-        "ec2:DescribeVolumes",
-        "ec2:DescribeTags",
-        "ssm:GetParameters"
-    ]
-
-    resources = [
-       "*",
-    ]
-  }
-}
-
-resource "aws_iam_role_policy" "api_ecs_execution_role_policy_attach_otel" {
-  name   = "${var.project_name}-api-access-otel"
-  role   = module.ecs_cluster.ecs_execution_role_id
-  policy = data.aws_iam_policy_document.api_ecs_to_otel_access.json
-}
-

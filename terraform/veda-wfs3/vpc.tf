@@ -1,5 +1,5 @@
 module "networking" {
-  source               = "../modules/networking"
+  source               = "github.com/developmentseed/tf-seed/modules/networking"
   project_name         = var.project_name
   env                  = "${var.env}"
   vpc_cidr             = "10.0.0.0/16"

@@ -43,5 +43,5 @@ WORKDIR $APPLICATION_ROOT
 COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 COPY fast_api_main.py fast_api_main.py
-COPY pyserver.py pyserver.py
+COPY dbconntest.py dbconntest.py
 COPY startup.sh startup.sh

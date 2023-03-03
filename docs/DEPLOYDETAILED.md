@@ -1,7 +1,9 @@
 ## Building Docker Image, Putting on ECR, Forcing a Deployment
 
-This verbose and manual document show show exactly how our CI/CD deployment pipeline works. Take note that we 
-are using `grep` below to whittle down which project and environment we are targeting from all the potential output
+This verbose and manual document shows show exactly how our CD pipeline works but gives more 
+context by retrieving the AWS inputs from `aws-cli`. It also can be used to run deployments from local setup. 
+Take note that we are using `grep` below to whittle down which project and environment 
+we are targeting from all the potential output:
 
 0. Install `jq` because it's awesome: https://formulae.brew.sh/formula/jq
 
@@ -11,17 +13,26 @@ are using `grep` below to whittle down which project and environment we are targ
     $ docker build -t veda-wfs3-api:latest .
     ```
 
-2. List existing ECR repositories using "aws-cli":
+2. Export some os env vars so we can use them filter. Make sure they match the environment you want to work against
+
+   ```bash
+    $ export TARGET_PROJECT_NAME=veda-wfs3
+    $ export TARGET_ENVIRONMENT=dev
+   ```
+   
+3. Make sure you have an `AWS_PROFILE` setup that matches the AWS `region` you want to work with. In the examples below `uah1` referes to the UAH account in `us-west-2`
+
+4. List existing ECR repositories using "aws-cli" and whittle down which one we want to talk to with os env vars:
 
     ```bash
-    $ AWS_PROFILE=<region> aws ecr describe-repositories 
+    $ AWS_PROFILE=uah1 aws ecr describe-repositories 
     {
         "repositories": [
             {
-                "repositoryArn": "arn:aws:ecr:us-west-2:359356595137:repository/veda-wfs3-registry-production",
+                "repositoryArn": "arn:aws:ecr:us-west-2:359356595137:repository/veda-wfs3-registry-dev",
                 "registryId": "359356595137",
-                "repositoryName": "veda-wfs3-registry-production",
-                "repositoryUri": "359356595137.dkr.ecr.us-west-2.amazonaws.com/veda-wfs3-registry-production",
+                "repositoryName": "veda-wfs3-registry-dev",
+                "repositoryUri": "359356595137.dkr.ecr.us-west-2.amazonaws.com/veda-wfs3-registry-dev",
                 "createdAt": "2022-12-10T13:46:05-08:00",
                 "imageTagMutability": "MUTABLE",
                 "imageScanningConfiguration": {
@@ -34,34 +45,47 @@ are using `grep` below to whittle down which project and environment we are targ
         ]
     }
    
-    $ AWS_PROFILE=<region> aws ecr describe-repositories \
+    $ AWS_PROFILE=uah1 aws ecr describe-repositories \
         | jq '.repositories | map(.repositoryUri)' \
-        | grep 'veda-wfs3' | grep 'production'
-    "359356595137.dkr.ecr.us-west-2.amazonaws.com/veda-wfs3-registry-production"
+        | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT
+    "359356595137.dkr.ecr.us-west-2.amazonaws.com/veda-wfs3-registry-dev"
     ```
 
-3. Login to ECR from awscli:
+5. Login to ECR from awscli:
 
     ```bash
-    AWS_PROFILE=<region> aws ecr describe-repositories \
-        | jq '.repositories[0].repositoryUri' \
-        | AWS_PROFILE=<region> xargs -I {} bash -c "aws ecr get-login-password | docker login --username AWS --password-stdin {}"
+    $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+       | jq '.repositories | map(.repositoryUri)' \
+       | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
+       | xargs -I {} bash -c "AWS_PROFILE=uah1 aws ecr get-login-password | docker login --username AWS --password-stdin {}"
     ```
 
-4. Now re-tag the local image with the remote ECR repository and tag name:
+6. Now re-tag the local image we built with the remote ECR repository and tag name:
  
     ```bash
-    $ aws ecr describe-repositories | jq '.repositories[0].repositoryUri' | xargs -I {} docker images --format "{{json . }}" {} | grep '"Tag":"latest"' | jq '"\(.Repository):\(.Tag)"' | xargs -I{} docker tag veda-wfs3-api:latest {}
+     $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+        | jq '.repositories | map(.repositoryUri)' \
+        | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
+        | xargs -I {} docker images --format "{{json . }}" {} \
+        | grep '"Tag":"latest"' \
+        | jq '"\(.Repository):\(.Tag)"' \
+        | xargs -I{} docker tag veda-wfs3-api:latest {}
    
     # check your work locally
-    $ aws ecr describe-repositories | jq '.repositories[0].repositoryUri' | xargs -I {} docker images --format "{{json . }}" {} | grep '"Tag":"latest"' | jq
+     $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+        | jq '.repositories | map(.repositoryUri)' \
+        | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
+        | xargs -I {} docker images --format "{{json . }}" {} \
+        | grep '"Tag":"latest"' \
+        | jq '"\(.Repository):\(.Tag)"' \
+        | jq
     {
       "Containers": "N/A",
       "CreatedAt": "2022-12-12 08:16:23 -0800 PST",
       "CreatedSince": "9 minutes ago",
       "Digest": "<none>",
       "ID": "a0a6c57e40e8",
-      "Repository": "359356595137.dkr.ecr.us-west-2.amazonaws.com/veda-wfs3-registry-production",
+      "Repository": "359356595137.dkr.ecr.us-west-2.amazonaws.com/veda-wfs3-registry-dev",
       "SharedSize": "N/A",
       "Size": "887MB",
       "Tag": "latest",
@@ -70,18 +94,27 @@ are using `grep` below to whittle down which project and environment we are targ
     }
     ```
 
-5. Push the image from local to ECR:
+7. Push the image from local to ECR:
 
     ```bash
-    $ aws ecr describe-repositories | jq '.repositories[0].repositoryUri' | xargs -I {} docker images --format "{{json . }}" {} | grep '"Tag":"latest"' | jq '"\(.Repository):\(.Tag)"' | xargs -I{} docker push {} 
+      $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+        | jq '.repositories | map(.repositoryUri)' \
+        | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
+        | xargs -I {} docker images --format "{{json . }}" {} \
+        | grep '"Tag":"latest"' \
+        | jq '"\(.Repository):\(.Tag)"' \
+        | xargs -I{} docker push {}
    
     # check your remote work
-    $ aws ecr describe-repositories | jq '.repositories[0].repositoryName' | xargs -I {} aws ecr describe-images --repository-name={}
+      $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+        | jq '.repositories | map(.repositoryUri)' \
+        | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
+        | AWS_PROFILE=uah1 xargs -I {} aws ecr describe-images --repository-name={}
     {
         "imageDetails": [
             {
                 "registryId": "359356595137",
-                "repositoryName": "veda-wfs3-registry-production",
+                "repositoryName": "veda-wfs3-registry-dev",
                 "imageDigest": "sha256:bf83dd6027aadbf190347529a317966656d875a2aa8b64bbd2cc2589466b68e7",
                 "imageTags": [
                     "latest"
@@ -95,22 +128,24 @@ are using `grep` below to whittle down which project and environment we are targ
     }
     ```
    
-6. Show your existing clusters:
+8. Show your existing clusters:
 
     ```bash
-    $ aws ecs list-clusters                      
+    $ AWS_PROFILE=uah1 aws ecs list-clusters                      
     {
         "clusterArns": [
-            "arn:aws:ecs:us-west-2:359356595137:cluster/tf-veda-wfs3-service-production"
+            "arn:aws:ecs:us-west-2:359356595137:cluster/tf-veda-wfs3-service-dev"
         ]
     }
    
-    $ aws ecs list-clusters | jq '.clusterArns[0]' | xargs -I{} aws ecs describe-clusters --cluster={}
+    $ AWS_PROFILE=uah1 aws ecs list-clusters \
+      | jq '.clusterArns[0]' \
+      | xargs -I{} aws ecs describe-clusters --cluster={}
     {
         "clusters": [
             {
-                "clusterArn": "arn:aws:ecs:us-west-2:359356595137:cluster/tf-veda-wfs3-service-production",
-                "clusterName": "tf-veda-wfs3-service-production",
+                "clusterArn": "arn:aws:ecs:us-west-2:359356595137:cluster/tf-veda-wfs3-service-dev",
+                "clusterName": "tf-veda-wfs3-service-dev",
                 "status": "ACTIVE",
                 "registeredContainerInstancesCount": 0,
                 "runningTasksCount": 0,
@@ -127,9 +162,14 @@ are using `grep` below to whittle down which project and environment we are targ
     }
     ```
     
-7. Once it's there, we can force update the ECS cluster/service/tasks to use it with:
+9. Once it's there, we can force update the ECS cluster/service/tasks to use it with:
 
     ```bash
-    $ aws ecs list-clusters | jq '.clusterArns[0]' | xargs -I{} aws ecs describe-clusters --cluster={} | jq '.clusters[0].clusterName' | xargs -I{} aws ecs update-service --cluster {} --service {} --task-definition {} --force-new-deployment
+   $ AWS_PROFILE=uah1 aws ecs list-clusters \
+     | jq '.clusterArns[0]' \
+     | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
+     | AWS_PROFILE=uah1 xargs -I{}  aws ecs describe-clusters --cluster={} \
+     | jq '.clusters[0].clusterName' \
+     | AWS_PROFILE=uah1 xargs -I{}  aws ecs update-service --cluster {} --service {} --task-definition {} --force-new-deployment > /dev/null
     ```
 

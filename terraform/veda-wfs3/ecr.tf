@@ -1,5 +1,5 @@
 module "ecr_registry" {
-  source = "../modules/aws_ecr"
+  source = "github.com/developmentseed/tf-seed/modules/aws_ecr"
   environment              = var.env
   registry_name            = var.registry_name
   enable_registry_scanning = true

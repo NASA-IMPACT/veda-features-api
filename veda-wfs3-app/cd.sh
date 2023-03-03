@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# you probably shouldn't be using this script if you don't know what you're doing
+# but it's a quicker way to refresh an ECS service from local instead of using CI/CD
 if [[ -z "$TARGET_ENVIRONMENT" ]]; then
     echo "you must have `TARGET_ENVIRONMENT` set as an os env var" 1>&2
     exit 1

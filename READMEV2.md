@@ -20,12 +20,6 @@ To locally run the site:
 
 ---
 
-### Development Setup
-
-Folks working on this project can play with development locally 
-
---- 
-
 ### Continuous Deployment for `staging` and `production`
 
 Unless you're manually deploying a `dev` environment all deploys happen through the CI/CD Github Actions. So please
@@ -39,7 +33,7 @@ This uses [conventional commit methodology](https://www.conventionalcommits.org/
 
 ### Manual Deployments 
 
-[Mangual Deployments Explained](./docs/DEPLOYDETAILED.md)
+[Manual Deployments Explained](./docs/DEPLOYDETAILED.md)
 
 --- 
 
