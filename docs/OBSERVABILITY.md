@@ -19,6 +19,7 @@ to be written
 ## How to Setup AWS Distro for OpenTelemetry (ADOT) on ECS Fargate
 
 ### Prior Art
+
 https://aws-otel.github.io/docs/setup/ecs
 
 https://opentelemetry-python-contrib.readthedocs.io/en/latest/
