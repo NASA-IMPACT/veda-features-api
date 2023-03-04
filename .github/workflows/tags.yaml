@@ -1,4 +1,4 @@
-name: Create tags
+name: tag
 
 on:
   push:

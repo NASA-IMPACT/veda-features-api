@@ -1,4 +1,4 @@
-name: Deploy
+name: deploy
 
 on:
   push:
@@ -6,8 +6,8 @@ on:
       - main
 
 jobs:
-  deploy:
-    if: $OLD_ECS_DEPLOY == 'true'
+  deploy_apigw_staging:
+    if: $APIGW_DEPLOY == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,7 +42,7 @@ jobs:
         run: npm run cdk deploy tifeatures-timvt-staging -- --require-approval never
 
   deploy_ecs_staging:
-    if: $NEW_ECS_DEPLOY == 'true'
+    if: $ECS_DEPLOY == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -66,7 +66,7 @@ jobs:
 
       - name: ECS refresh service
         env:
-          ECS_SERVICE_NAME: tf-veda-wfs3-service-dev
+          ECS_SERVICE_NAME: tf-veda-wfs3-service-staging
           AWS_ACCESS_KEY_ID: ${{ secrets.DEPLOY_USER_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOY_USER_AWS_SECRET_ACCESS_KEY }}
         run: |
