@@ -77,4 +77,4 @@ async def shutdown_event() -> None:
     """Close database connection."""
     await close_db_connection(app)
 
-FastAPIInstrumentor.instrument_app(app, excluded_urls="/,/conformance")
+FastAPIInstrumentor.instrument_app(app, excluded_urls="/conformance")
