@@ -20,7 +20,7 @@ resource "aws_secretsmanager_secret" "config" {
 }
 
 resource "aws_secretsmanager_secret" "db_config" {
-  name                    = "veda-wfs3-db-config"
+  name                    = "veda-wfs3-${var.env}-db-config-v3"
   kms_key_id              = data.aws_kms_key.secretsmanager.id
   tags                    = var.tags
 }

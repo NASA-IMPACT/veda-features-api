@@ -1,5 +1,5 @@
 resource "aws_iam_user" "deploy_user" {
-  name = "veda-wfs3-deploy-user"
+  name = "veda-wfs3-${var.env}-deploy-user"
   path = "/"
   tags = var.tags
 }

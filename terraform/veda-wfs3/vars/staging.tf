@@ -1,4 +1,4 @@
-region             = "us-west-2"
+region             = "us-west-1"
 registry_name      = "veda-wfs3-registry"
 env                = "staging"
 project_name       = "veda-wfs3"

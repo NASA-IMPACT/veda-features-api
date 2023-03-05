@@ -1,5 +1,5 @@
 resource "aws_alb_target_group" "alb_target_group" {
-  name                 = "tf-${var.project_name}-target-group"
+  name                 = "tf-${var.project_name}-${var.env}-tgroup"
   port                 = var.service_port
   protocol             = "HTTP"
   vpc_id               = module.networking.vpc_id
@@ -13,7 +13,7 @@ resource "aws_alb_target_group" "alb_target_group" {
   health_check {
     interval            = 60
     path                = "/conformance"
-    port                = 8080
+    port                = var.service_port
     protocol            = "HTTP"
     matcher             = "200"
     timeout             = 5
@@ -28,7 +28,7 @@ resource "aws_alb_target_group" "alb_target_group" {
 
 /* security group for ALB */
 resource "aws_security_group" "web_inbound_sg" {
-  name        = "tf-${var.project_name}-web-inbound-sg"
+  name        = "tf-${var.project_name}-${var.env}-web-inbound-sg"
   description = "Allow HTTP from Anywhere into ALB"
   vpc_id      = module.networking.vpc_id
 
@@ -54,12 +54,12 @@ resource "aws_security_group" "web_inbound_sg" {
   }
 
   tags = {
-    Name = "tf-${var.project_name}-web-inbound-sg"
+    Name = "tf-${var.project_name}-${var.env}-web-inbound-sg"
   }
 }
 
 resource "aws_alb" "alb_ecs" {
-  name            = "tf-${var.project_name}-alb"
+  name            = "tf-${var.project_name}-${var.env}-alb"
   subnets         = module.networking.public_subnets_id
   security_groups = concat(module.networking.security_groups_ids, [aws_security_group.web_inbound_sg.id])
 

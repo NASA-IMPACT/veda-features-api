@@ -56,15 +56,6 @@ module "ecs_cluster" {
 
   container_ingress_cidrs = ["0.0.0.0/0"]
   container_ingress_sg_ids = []
-  additional_sg_ingress_rules_for_vpc_default_sg = [
-    {
-      primary_key       = "1"
-      vpc_default_sg_id = "${module.networking.default_sg_id}"
-      protocol          = "tcp"
-      from_port         = 5432
-      to_port           = 5432
-    },
-  ]
 
   use_adot_as_sidecar = true
   use_ecr = true
