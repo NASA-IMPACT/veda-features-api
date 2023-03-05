@@ -12,12 +12,14 @@ resource "aws_db_parameter_group" "default" {
 
   parameter {
     name  = "work_mem"
-    value = "78125"
+    # NOTE: I had `work_mem` set to ~100MB and `max_connections` around 75 and TileJSON completely failed
+    # 16MB
+    value = "16384"
   }
 
   parameter {
     name  = "max_connections"
-    value = "100"
+    value = "475"
     apply_method = "pending-reboot"
   }
 

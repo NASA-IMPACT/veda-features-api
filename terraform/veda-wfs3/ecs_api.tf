@@ -1,5 +1,5 @@
 module "ecs_cluster" {
-  source = "github.com/developmentseed/tf-seed/modules/aws_ecs_service"
+  source = "../modules/aws_ecs_service"
   environment = var.env
   region      = var.region
   vpc_id      = module.networking.vpc_id
