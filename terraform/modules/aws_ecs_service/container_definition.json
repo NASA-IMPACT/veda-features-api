@@ -38,7 +38,7 @@
 %{ endif }
 %{ if use_adot_as_sidecar != "" }
   {
-      "name": "aws-otel-collector",
+      "name": "aws-otel-collector-${environment}",
       "cpu": 256,
       "memory": 512,
       "image": "amazon/aws-otel-collector",
@@ -66,7 +66,7 @@
       "mountPoints": []
     },
     {
-      "name": "aws-otel-emitter",
+      "name": "aws-otel-emitter-${environment}",
       "cpu": 256,
       "memory": 512,
       "image": "public.ecr.aws/aws-otel-test/aws-otel-goxray-sample-app:latest",
@@ -74,7 +74,7 @@
       "logConfiguration": {
         "logDriver": "awslogs",
         "options": {
-          "awslogs-group": "/ecs/ecs-aws-otel-sidecar-app",
+          "awslogs-group": "/ecs/ecs-aws-otel-sidecar-app-${environment}",
           "awslogs-region": "${region}",
           "awslogs-stream-prefix": "ecs",
           "awslogs-create-group": "True"
@@ -82,7 +82,7 @@
       },
       "dependsOn": [
         {
-          "containerName": "aws-otel-collector",
+          "containerName": "aws-otel-collector-${environment}",
           "condition": "START"
         }
       ],
@@ -92,14 +92,14 @@
       "mountPoints": []
     },
     {
-      "name": "nginx",
+      "name": "nginx-${environment}",
       "cpu": 256,
       "memory": 256,
       "image": "nginx:latest",
       "essential": false,
       "dependsOn": [
         {
-          "containerName": "aws-otel-collector",
+          "containerName": "aws-otel-collector-${environment}",
           "condition": "START"
         }
       ],
@@ -109,13 +109,13 @@
       "mountPoints": []
     },
     {
-      "name": "aoc-statsd-emitter",
+      "name": "aoc-statsd-emitter-${environment}",
       "cpu": 256,
       "memory": 512,
       "image": "alpine/socat:latest",
       "dependsOn": [
         {
-          "containerName": "aws-otel-collector",
+          "containerName": "aws-otel-collector-${environment}",
           "condition": "START"
         }
       ],
@@ -125,7 +125,7 @@
           "awslogs-create-group": "True",
           "awslogs-region": "${region}",
           "awslogs-stream-prefix": "ecs",
-          "awslogs-group": "/ecs/statsd-emitter"
+          "awslogs-group": "/ecs/statsd-emitter-${environment}"
         }
       },
       "entryPoint": [

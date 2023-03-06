@@ -5,7 +5,7 @@ import json
 
 from fastapi import FastAPI, Request, Response, APIRouter
 from fastapi.routing import APIRoute
-from opentelemetry import trace
+from opentelemetry import trace, metrics
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from starlette_cramjam.middleware import CompressionMiddleware
 from tipg.db import close_db_connection, connect_to_db, register_collection_catalog
@@ -24,7 +24,10 @@ logger.addHandler(handler)
 db_config = json.loads(json.loads(os.environ.get("DB_CONFIG")))
 
 tracer = trace.get_tracer(__name__)
-
+meter = metrics.get_meter(__name__)
+request_counter = meter.create_counter(
+    "request.counter", unit="1", description="counts the number of requests"
+)
 
 class LoggerRouteHandler(APIRoute):
 
@@ -37,6 +40,7 @@ class LoggerRouteHandler(APIRoute):
                 "route": self.path,
                 "method": request.method,
             }
+            request_counter.add(1, ctx)
             with tracer.start_as_current_span("handle_request") as route_handler_span:
                 route_handler_span.set_attribute("request.context.path", ctx["path"])
                 route_handler_span.set_attribute("request.context.route", ctx["route"])
