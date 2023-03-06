@@ -1,5 +1,9 @@
 name: deploy
 
+env:
+  APIGW_DEPLOY: false
+  ECS_DEPLOY: false
+
 on:
   push:
     branches:
@@ -7,7 +11,7 @@ on:
 
 jobs:
   deploy_apigw_staging:
-    if: env.APIGW_DEPLOY == 'true'
+    if: ${{ env.APIGW_DEPLOY == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -42,7 +46,7 @@ jobs:
         run: npm run cdk deploy tifeatures-timvt-staging -- --require-approval never
 
   deploy_ecs_staging:
-    if: env.ECS_DEPLOY == 'true'
+    if: ${{ env.ECS_DEPLOY == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
