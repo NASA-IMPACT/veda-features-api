@@ -1,4 +1,4 @@
-name: Deploy
+name: deploy
 
 on:
   push:
@@ -6,7 +6,8 @@ on:
       - main
 
 jobs:
-  deploy:
+  deploy_apigw_staging:
+    if: $APIGW_DEPLOY == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -39,3 +40,39 @@ jobs:
       # Build and Deploy CDK application
       - name: Build & Deploy
         run: npm run cdk deploy tifeatures-timvt-staging -- --require-approval never
+
+  deploy_ecs_staging:
+    if: $ECS_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEPLOY_USER_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEPLOY_USER_AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
+
+      - name: docker build, tag, and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: 853558080719.dkr.ecr.us-west-1.amazonaws.com/tf-veda-wfs3-registry-staging
+          IMAGE_TAG: latest
+        run: |
+          aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
+          docker build -t $ECR_REGISTRY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY:$IMAGE_TAG"
+
+      - name: ECS refresh service
+        env:
+          ECS_SERVICE_NAME: tf-veda-wfs3-service-staging
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEPLOY_USER_AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOY_USER_AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws ecs update-service \
+              --cluster $ECS_SERVICE_NAME \
+              --service $ECS_SERVICE_NAME \
+              --task-definition $ECS_SERVICE_NAME \
+              --force-new-deployment
+

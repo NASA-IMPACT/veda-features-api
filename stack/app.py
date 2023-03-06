@@ -1,13 +1,12 @@
 """Construct App."""
 import json
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import aws_cdk.aws_logs as logs
 from aws_cdk import aws_apigatewayv2 as apigw
 from aws_cdk import aws_apigatewayv2_integrations as apigw_integrations
 from aws_cdk import aws_ec2 as ec2
-from aws_cdk import aws_iam as iam
 from aws_cdk import aws_lambda
 from aws_cdk import aws_rds as rds
 from aws_cdk import aws_secretsmanager as secretsmanager
@@ -140,11 +139,12 @@ class LambdaStack(core.Stack):
             self,
             f"{id}-postgres-db",
             vpc=vpc,
-            engine=rds.DatabaseInstanceEngine.POSTGRES,
+            engine=rds.DatabaseInstanceEngine.postgres(version=rds.PostgresEngineVersion.VER_14),
             instance_type=ec2.InstanceType.of(
-                ec2.InstanceClass.BURSTABLE3, ec2.InstanceSize.SMALL
+                ec2.InstanceClass.R5, ec2.InstanceSize.XLARGE
             ),
             database_name=db_settings.dbname,
+            allow_major_version_upgrade=True,
             vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
             backup_retention=core.Duration.days(7),
             deletion_protection=api_settings.stage.lower() == "production",

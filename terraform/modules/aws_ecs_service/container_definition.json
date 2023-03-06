@@ -1,0 +1,143 @@
+[
+  {
+    "name": "tf-${service_name}-${environment}",
+    "cpu": 512,
+    "memory": 2048,
+    "image": "${image}",
+%{ if container_command != "" }
+    "command": ${container_command},
+%{ endif }
+%{ if working_directory != "" }
+    "workingDirectory": "${working_directory}",
+%{ endif }
+    "secrets": ${container_secrets},
+    "environment": ${container_environment},
+    "entryPoint": null,
+    "essential": true,
+    "portMappings": [
+       {
+         "protocol": "${service_protocol}",
+         "containerPort": ${service_port},
+         "hostPort": ${service_port}
+       }
+    ],
+    "volumesFrom": [],
+    "mountPoints": [],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${region}",
+        "awslogs-stream-prefix": "ecs"
+      }
+    }
+%{ if use_adot_as_sidecar != "" }
+  },
+%{ else }
+  }
+%{ endif }
+%{ if use_adot_as_sidecar != "" }
+  {
+      "name": "aws-otel-collector",
+      "cpu": 256,
+      "memory": 512,
+      "image": "amazon/aws-otel-collector",
+      "command":["--config=/etc/ecs/container-insights/otel-task-metrics-config.yaml"],
+      "essential": true,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "${log_group}",
+          "awslogs-region": "${region}",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "True"
+        }
+      },
+      "healthCheck": {
+        "command": [ "/healthcheck" ],
+        "interval": 5,
+        "timeout": 6,
+        "retries": 5,
+        "startPeriod": 1
+      },
+      "environment": [],
+      "portMappings": [],
+      "volumesFrom": [],
+      "mountPoints": []
+    },
+    {
+      "name": "aws-otel-emitter",
+      "cpu": 256,
+      "memory": 512,
+      "image": "public.ecr.aws/aws-otel-test/aws-otel-goxray-sample-app:latest",
+      "essential": false,
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/ecs-aws-otel-sidecar-app",
+          "awslogs-region": "${region}",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-create-group": "True"
+        }
+      },
+      "dependsOn": [
+        {
+          "containerName": "aws-otel-collector",
+          "condition": "START"
+        }
+      ],
+      "environment": [],
+      "portMappings": [],
+      "volumesFrom": [],
+      "mountPoints": []
+    },
+    {
+      "name": "nginx",
+      "cpu": 256,
+      "memory": 256,
+      "image": "nginx:latest",
+      "essential": false,
+      "dependsOn": [
+        {
+          "containerName": "aws-otel-collector",
+          "condition": "START"
+        }
+      ],
+      "environment": [],
+      "portMappings": [],
+      "volumesFrom": [],
+      "mountPoints": []
+    },
+    {
+      "name": "aoc-statsd-emitter",
+      "cpu": 256,
+      "memory": 512,
+      "image": "alpine/socat:latest",
+      "dependsOn": [
+        {
+          "containerName": "aws-otel-collector",
+          "condition": "START"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-create-group": "True",
+          "awslogs-region": "${region}",
+          "awslogs-stream-prefix": "ecs",
+          "awslogs-group": "/ecs/statsd-emitter"
+        }
+      },
+      "entryPoint": [
+        "/bin/sh",
+        "-c",
+        "while true; do echo 'statsdTestMetric:1|c' | socat -v -t 0 - UDP:127.0.0.1:8125; sleep 1; done"
+      ],
+      "environment": [],
+      "portMappings": [],
+      "volumesFrom": [],
+      "mountPoints": [],
+      "essential": false
+    }
+%{ endif }
+]

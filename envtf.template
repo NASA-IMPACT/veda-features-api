@@ -1,0 +1,17 @@
+#!/bin/sh
+# copy and rename this file to `.envtf.sh` and fill out values below
+
+##################################################################
+# only needed if you want to run `veda-wfs3-app/cd.sh` script
+##################################################################
+export TARGET_ENVIRONMENT=dev
+export TARGET_PROJECT_NAME=veda-wfs3
+
+##################################################################
+# currently we don't want to encrypt/decrypt and store secrets in
+# terraform/veda-wfs3/vars/*.tf. The basic workaround then
+# is to store them in AWS Secret Manager (where they will be used
+# by TF) and pump them locally into runs through OS env var(s)
+##################################################################
+# TODO: get this from AWS secret manager and hydrate locally, the SM key is `veda-wfs3-db-config`
+export TF_VAR_db_password=''
