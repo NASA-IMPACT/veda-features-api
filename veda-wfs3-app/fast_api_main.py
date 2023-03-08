@@ -8,6 +8,7 @@ from fastapi.routing import APIRoute
 from opentelemetry import trace, metrics
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from starlette_cramjam.middleware import CompressionMiddleware
+from starlette.middleware.base import BaseHTTPMiddleware
 from tipg.db import close_db_connection, connect_to_db, register_collection_catalog
 from tipg.factory import Endpoints as FeaturesEndpoints
 from tipg.settings import PostgresSettings
@@ -26,7 +27,10 @@ db_config = json.loads(json.loads(os.environ.get("DB_CONFIG")))
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)
 request_counter = meter.create_counter(
-    "request.counter", unit="1", description="counts the number of requests"
+    "request.counter", unit="1", description="counts the number of requests segmented by path"
+)
+total_request_counter = meter.create_counter(
+    "request.total", unit="1", description="counts the number of requests"
 )
 
 class LoggerRouteHandler(APIRoute):
@@ -40,7 +44,12 @@ class LoggerRouteHandler(APIRoute):
                 "route": self.path,
                 "method": request.method,
             }
-            request_counter.add(1, ctx)
+            logger.info(f"[ REQUEST SCOPE ]: {request.scope}")
+            logger.info(f"[ REQUEST HEADERS ]: {request.headers}")
+            # total request counter
+            total_request_counter.add(1, {"total": "total"})
+            # segment by "<REQUEST.METHOD>: <REQUEST.URL>"
+            request_counter.add(1, {"path": f"{request.method}: {request.url.path}"})
             with tracer.start_as_current_span("handle_request") as route_handler_span:
                 route_handler_span.set_attribute("request.context.path", ctx["path"])
                 route_handler_span.set_attribute("request.context.route", ctx["route"])
@@ -48,6 +57,22 @@ class LoggerRouteHandler(APIRoute):
                 return await original_route_handler(request)
 
         return route_handler
+
+
+# TODO: this is hack to fix the issue where our `X-Forwarded-Proto` header
+# does not seem to be reaching the FastAPI code and therefore `starlette` package
+# isn't setting the scheme correctly, still need to figure this out
+# we are already doing everything that `uvicorn` is telling us to do
+# prior art:
+# https://www.uvicorn.org/settings/#http
+# https://github.com/developmentseed/titiler/discussions/345
+# https://github.com/encode/starlette/issues/604
+# https://github.com/encode/starlette/issues/692
+class FixUrlMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        request.scope["scheme"] = "https"
+        response = await call_next(request)
+        return response
 
 
 app = FastAPI(
@@ -67,6 +92,7 @@ postgresql_settings = PostgresSettings(**{
 endpoints = FeaturesEndpoints(router=APIRouter(route_class=LoggerRouteHandler))
 app.include_router(endpoints.router, tags=["OGC Features"])
 app.add_middleware(CompressionMiddleware)
+app.add_middleware(FixUrlMiddleware)
 
 @app.on_event("startup")
 async def startup_event() -> None:

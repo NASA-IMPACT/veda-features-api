@@ -51,6 +51,10 @@ module "ecs_cluster" {
     {
       name = "OTEL_RESOURCE_ATTRIBUTES"
       value = "service.name=veda-wfs3-${var.env}"
+    },
+    {
+      name = "FORWARDED_ALLOW_IPS"
+      value = "*"
     }
   ]
 
