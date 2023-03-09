@@ -9,6 +9,7 @@ from opentelemetry import trace, metrics
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from starlette_cramjam.middleware import CompressionMiddleware
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.middleware.cors import CORSMiddleware
 from tipg.db import close_db_connection, connect_to_db, register_collection_catalog
 from tipg.factory import Endpoints as FeaturesEndpoints
 from tipg.settings import PostgresSettings
@@ -93,6 +94,13 @@ endpoints = FeaturesEndpoints(router=APIRouter(route_class=LoggerRouteHandler))
 app.include_router(endpoints.router, tags=["OGC Features"])
 app.add_middleware(CompressionMiddleware)
 app.add_middleware(FixUrlMiddleware)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 @app.on_event("startup")
 async def startup_event() -> None:
