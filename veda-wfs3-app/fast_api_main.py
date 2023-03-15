@@ -22,8 +22,7 @@ handler.setFormatter(formatter)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
-# :TECHDEBT: why do we need two `json.loads`?
-db_config = json.loads(json.loads(os.environ.get("DB_CONFIG")))
+db_config = json.loads(os.environ.get("DB_CONFIG"))
 
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)

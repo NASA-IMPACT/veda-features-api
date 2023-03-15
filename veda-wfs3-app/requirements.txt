@@ -1,8 +1,7 @@
 timvt==0.8.0a2
 tifeatures==0.1.0a2
-git+https://github.com/developmentseed/tipg@41bb265b550c892eb977ac1d78871a81624cbc0e
-# previous sha before CRS fix
-#git+https://github.com/developmentseed/tipg@51f4dd51d204945ca75ea35cf16cfa853397f9ce
+git+https://github.com/developmentseed/tipg@82691b808c1265ca0b21b7cacf122880b426e2b5
+#git+https://github.com/developmentseed/tipg@41bb265b550c892eb977ac1d78871a81624cbc0e
 uvicorn==0.20.0
 boto3==1.26.28
 opentelemetry-distro[otlp]>=0.24b0
