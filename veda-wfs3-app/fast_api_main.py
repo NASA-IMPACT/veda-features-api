@@ -13,6 +13,7 @@ from starlette.middleware.cors import CORSMiddleware
 from tipg.db import close_db_connection, connect_to_db, register_collection_catalog
 from tipg.factory import Endpoints as FeaturesEndpoints
 from tipg.settings import PostgresSettings
+from tipg.main import settings
 from typing import Callable
 
 logger = logging.getLogger(__name__)
@@ -74,6 +75,9 @@ class FixUrlMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         return response
 
+
+# to expose the /refresh endpoint
+settings.DEBUG = True
 
 app = FastAPI(
     title="EIS Fire boundaries",
