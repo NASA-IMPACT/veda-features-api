@@ -33,6 +33,9 @@ request_counter = meter.create_counter(
 total_request_counter = meter.create_counter(
     "request.total", unit="1", description="counts the number of requests"
 )
+release_counter = meter.create_counter(
+    "release.counter", unit="1", description="counts the number of releases so we can graph b/c CW metrics are trash"
+)
 
 
 class LoggerRouteHandler(APIRoute):
@@ -109,6 +112,7 @@ async def startup_event() -> None:
     """Connect to database on startup."""
     with tracer.start_as_current_span("startup_event"):
         await connect_to_db(app, settings=postgresql_settings)
+        release_counter.add(1, {"release": "count"})
         await register_collection_catalog(app)
 
 
