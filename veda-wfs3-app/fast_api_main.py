@@ -125,7 +125,7 @@ async def shutdown_event() -> None:
     operation_id="healthCheck",
     tags=["Health Check"],
 )
-def ping():
+async def ping():
     return JSONResponse(status_code=200, content={"ping": "pong"})
 
 
