@@ -86,7 +86,7 @@ resource "aws_alb_target_group" "alb_target_group" {
 
   health_check {
     interval            = 60
-    path                = "/conformance"
+    path                = "/healthz"
     port                = var.service_port
     protocol            = "HTTP"
     matcher             = "200"

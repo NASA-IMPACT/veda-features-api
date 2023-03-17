@@ -3,8 +3,9 @@ import os
 import sys
 import json
 
-from fastapi import FastAPI, Request, Response, APIRouter
+from fastapi import FastAPI, Request, Response, APIRouter, status
 from fastapi.routing import APIRoute
+from fastapi.responses import JSONResponse
 from opentelemetry import trace, metrics
 from opentelemetry.instrumentation.fastapi import FastAPIInstrumentor
 from starlette_cramjam.middleware import CompressionMiddleware
@@ -13,7 +14,6 @@ from starlette.middleware.cors import CORSMiddleware
 from tipg.db import close_db_connection, connect_to_db, register_collection_catalog
 from tipg.factory import Endpoints as FeaturesEndpoints
 from tipg.settings import PostgresSettings
-from tipg.main import settings
 from typing import Callable
 
 logger = logging.getLogger(__name__)
@@ -33,6 +33,7 @@ request_counter = meter.create_counter(
 total_request_counter = meter.create_counter(
     "request.total", unit="1", description="counts the number of requests"
 )
+
 
 class LoggerRouteHandler(APIRoute):
 
@@ -76,9 +77,6 @@ class FixUrlMiddleware(BaseHTTPMiddleware):
         return response
 
 
-# to expose the /refresh endpoint
-settings.DEBUG = True
-
 app = FastAPI(
     title="EIS Fire boundaries",
     openapi_url="/api",
@@ -105,6 +103,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.on_event("startup")
 async def startup_event() -> None:
     """Connect to database on startup."""
@@ -117,5 +116,25 @@ async def startup_event() -> None:
 async def shutdown_event() -> None:
     """Close database connection."""
     await close_db_connection(app)
+
+
+@app.get(
+    "/healthz",
+    description="Health Check.",
+    summary="Health Check.",
+    operation_id="healthCheck",
+    tags=["Health Check"],
+)
+def ping():
+    return JSONResponse(status_code=200, content={"ping": "pong"})
+
+
+@app.get("/refresh")
+async def refresh(request: Request):
+    """Return parsed catalog data for testing."""
+    with tracer.start_as_current_span("refresh"):
+        await connect_to_db(app, settings=postgresql_settings)
+        await register_collection_catalog(app)
+        return JSONResponse(status_code=200, content={"status": "refreshed"})
 
 FastAPIInstrumentor.instrument_app(app, excluded_urls="/conformance")
