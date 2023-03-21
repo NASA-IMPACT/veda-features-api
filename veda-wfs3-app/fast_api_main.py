@@ -33,8 +33,11 @@ request_counter = meter.create_counter(
 total_request_counter = meter.create_counter(
     "request.total", unit="1", description="counts the number of requests"
 )
-release_counter = meter.create_counter(
-    "release.counter", unit="1", description="counts the number of releases so we can graph b/c CW metrics are trash"
+release_counter = meter.create_up_down_counter(
+    name="release.counter", description="counts the number of releases so we can graph b/c CW metrics are trash"
+)
+refresh_counter = meter.create_up_down_counter(
+    name="refresh.counter", description="counts the number of releases so we can graph b/c CW metrics are trash"
 )
 
 
@@ -111,9 +114,10 @@ app.add_middleware(
 async def startup_event() -> None:
     """Connect to database on startup."""
     with tracer.start_as_current_span("startup_event"):
-        await connect_to_db(app, settings=postgresql_settings)
         release_counter.add(1, {"release": "count"})
+        await connect_to_db(app, settings=postgresql_settings)
         await register_collection_catalog(app)
+        release_counter.add(-1, {"release": "count"})
 
 
 @app.on_event("shutdown")
@@ -137,8 +141,10 @@ async def ping():
 async def refresh(request: Request):
     """Return parsed catalog data for testing."""
     with tracer.start_as_current_span("refresh"):
+        refresh_counter.add(1, {"refresh": "count"})
         await connect_to_db(app, settings=postgresql_settings)
         await register_collection_catalog(app)
+        refresh_counter.add(-1, {"refresh": "count"})
         return JSONResponse(status_code=200, content={"status": "refreshed"})
 
 FastAPIInstrumentor.instrument_app(app, excluded_urls="/conformance")
