@@ -36,3 +36,10 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "dns_zone_name" {
+}
+
+variable "dns_subdomain" {
+
+}

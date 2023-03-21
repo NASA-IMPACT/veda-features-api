@@ -14,7 +14,7 @@ resource "aws_db_parameter_group" "default" {
     name  = "work_mem"
     # NOTE: I had `work_mem` set to ~100MB and `max_connections` around 75 and TileJSON completely failed
     # 16MB
-    value = "16384"
+    value = var.env == "staging" ? "16384" : "8192"
   }
 
   parameter {
@@ -22,6 +22,13 @@ resource "aws_db_parameter_group" "default" {
     value = "475"
     apply_method = "pending-reboot"
   }
+
+#  NOTE: here to show what shared_buffers are but doesn't really make sense why it won't provision with these
+#  parameter {
+#    name  = "shared_buffers"
+#    value = var.env == "staging" ? "8064856" : "4032428"
+#    apply_method = "pending-reboot"
+#  }
 
   parameter {
     name  = "seq_page_cost"
@@ -43,7 +50,7 @@ resource "aws_db_instance" "db" {
   allocated_storage        = 100
   max_allocated_storage    = 500
   storage_type             = "gp2"
-  instance_class           = "db.r5.xlarge"
+  instance_class           = var.env == "staging" ? "db.r5.xlarge" : "db.r5.large"
   db_subnet_group_name     = aws_db_subnet_group.db.name
   vpc_security_group_ids   = module.networking.security_groups_ids
   skip_final_snapshot      = true
