@@ -78,7 +78,7 @@ class LoggerRouteHandler(APIRoute):
 # https://github.com/encode/starlette/issues/692
 class FixUrlMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
-        request.scope["scheme"] = "https"
+        request.scope["scheme"] = os.environ.get("FAST_API_SCHEME", "http")
         response = await call_next(request)
         return response
 

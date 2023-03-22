@@ -55,6 +55,11 @@ module "ecs_cluster" {
     {
       name = "FORWARDED_ALLOW_IPS"
       value = "*"
+    },
+    {
+      // stupid hack b/c of FastAPI and Starlette bug
+      name = "FAST_API_SCHEME"
+      value = var.env == "staging" ? "https" : "http"
     }
   ]
 

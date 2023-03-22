@@ -20,12 +20,12 @@ we are targeting from all the potential output:
     $ export TARGET_ENVIRONMENT=dev
    ```
    
-3. Make sure you have an `AWS_PROFILE` setup that matches the AWS `region` you want to work with. In the examples below `uah1` referes to the UAH account in `us-west-2`
+3. Make sure you have an `AWS_PROFILE` setup that matches the AWS `region` you want to work with. In the examples below `uah2` referes to the UAH account in `us-west-2`
 
 4. List existing ECR repositories using "aws-cli" and whittle down which one we want to talk to with os env vars:
 
     ```bash
-    $ AWS_PROFILE=uah1 aws ecr describe-repositories 
+    $ AWS_PROFILE=uah2 aws ecr describe-repositories 
     {
         "repositories": [
             {
@@ -45,7 +45,7 @@ we are targeting from all the potential output:
         ]
     }
    
-    $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+    $ AWS_PROFILE=uah2 aws ecr describe-repositories \
         | jq '.repositories | map(.repositoryUri)' \
         | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT
     "359356595137.dkr.ecr.us-west-2.amazonaws.com/veda-wfs3-registry-dev"
@@ -54,16 +54,16 @@ we are targeting from all the potential output:
 5. Login to ECR from awscli:
 
     ```bash
-    $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+    $ AWS_PROFILE=uah2 aws ecr describe-repositories \
        | jq '.repositories | map(.repositoryUri)' \
        | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
-       | xargs -I {} bash -c "AWS_PROFILE=uah1 aws ecr get-login-password | docker login --username AWS --password-stdin {}"
+       | xargs -I {} bash -c "AWS_PROFILE=uah2 aws ecr get-login-password | docker login --username AWS --password-stdin {}"
     ```
 
 6. Now re-tag the local image we built with the remote ECR repository and tag name:
  
     ```bash
-     $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+     $ AWS_PROFILE=uah2 aws ecr describe-repositories \
         | jq '.repositories | map(.repositoryUri)' \
         | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
         | xargs -I {} docker images --format "{{json . }}" {} \
@@ -72,7 +72,7 @@ we are targeting from all the potential output:
         | xargs -I{} docker tag veda-wfs3-api:latest {}
    
     # check your work locally
-     $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+     $ AWS_PROFILE=uah2 aws ecr describe-repositories \
         | jq '.repositories | map(.repositoryUri)' \
         | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
         | xargs -I {} docker images --format "{{json . }}" {} \
@@ -97,7 +97,7 @@ we are targeting from all the potential output:
 7. Push the image from local to ECR:
 
     ```bash
-      $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+      $ AWS_PROFILE=uah2 aws ecr describe-repositories \
         | jq '.repositories | map(.repositoryUri)' \
         | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
         | xargs -I {} docker images --format "{{json . }}" {} \
@@ -106,10 +106,10 @@ we are targeting from all the potential output:
         | xargs -I{} docker push {}
    
     # check your remote work
-      $ AWS_PROFILE=uah1 aws ecr describe-repositories \
+      $ AWS_PROFILE=uah2 aws ecr describe-repositories \
         | jq '.repositories | map(.repositoryUri)' \
         | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
-        | AWS_PROFILE=uah1 xargs -I {} aws ecr describe-images --repository-name={}
+        | AWS_PROFILE=uah2 xargs -I {} aws ecr describe-images --repository-name={}
     {
         "imageDetails": [
             {
@@ -131,14 +131,14 @@ we are targeting from all the potential output:
 8. Show your existing clusters:
 
     ```bash
-    $ AWS_PROFILE=uah1 aws ecs list-clusters                      
+    $ AWS_PROFILE=uah2 aws ecs list-clusters                      
     {
         "clusterArns": [
             "arn:aws:ecs:us-west-2:359356595137:cluster/tf-veda-wfs3-service-dev"
         ]
     }
    
-    $ AWS_PROFILE=uah1 aws ecs list-clusters \
+    $ AWS_PROFILE=uah2 aws ecs list-clusters \
       | jq '.clusterArns[0]' \
       | xargs -I{} aws ecs describe-clusters --cluster={}
     {
@@ -165,11 +165,11 @@ we are targeting from all the potential output:
 9. Once it's there, we can force update the ECS cluster/service/tasks to use it with:
 
     ```bash
-   $ AWS_PROFILE=uah1 aws ecs list-clusters \
+   $ AWS_PROFILE=uah2 aws ecs list-clusters \
      | jq '.clusterArns[0]' \
      | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
-     | AWS_PROFILE=uah1 xargs -I{}  aws ecs describe-clusters --cluster={} \
+     | AWS_PROFILE=uah2 xargs -I{}  aws ecs describe-clusters --cluster={} \
      | jq '.clusters[0].clusterName' \
-     | AWS_PROFILE=uah1 xargs -I{}  aws ecs update-service --cluster {} --service {} --task-definition {} --force-new-deployment > /dev/null
+     | AWS_PROFILE=uah2 xargs -I{}  aws ecs update-service --cluster {} --service {} --task-definition {} --force-new-deployment > /dev/null
     ```
 
