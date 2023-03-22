@@ -103,7 +103,7 @@ resource "aws_alb_target_group" "alb_target_group" {
 resource "aws_alb_listener" "alb_listener_ecs" {
   load_balancer_arn = aws_alb.alb_ecs.arn
   port              = 80
-  protocol          = "HTTP"
+  protocol          = var.alb_protocol
   depends_on        = [aws_alb_target_group.alb_target_group]
 
   default_action {

@@ -127,7 +127,3 @@ resource "aws_lambda_permission" "s3_invoke" {
   source_account   = "114506680961"
   source_arn       = "arn:aws:s3:::veda-data-store-staging"
 }
-
-output "s3_event_bridge_lambda_arn" {
-  value = "${aws_lambda_function.lambda.arn}:${aws_lambda_function.lambda.version}"
-}

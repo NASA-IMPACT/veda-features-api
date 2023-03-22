@@ -43,3 +43,6 @@ variable "dns_zone_name" {
 variable "dns_subdomain" {
 
 }
+
+variable "alb_protocol" {}
+
