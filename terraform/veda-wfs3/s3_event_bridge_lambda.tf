@@ -87,6 +87,44 @@ resource "aws_iam_role_policy_attachment" "lambda_sfn_start_exec" {
   policy_arn = aws_iam_policy.lambda_sfn_start_exec.arn
 }
 
+###############################
+# MWAA Trigger Permissions
+###############################
+resource "aws_iam_policy" "lambda_trigger_mwaa_job" {
+  provider = aws.west2
+  name        = "lambda-trigger-mwaa-${var.project_name}-${var.env}"
+  path        = "/"
+  description = "IAM policy for allowing lambda to trigger MWAA"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+      {
+          "Effect": "Allow",
+          "Action": "airflow:ListEnvironments",
+          "Resource": "*"
+      },
+      {
+          "Effect": "Allow",
+          "Action": "airflow:*",
+          "Resource": [
+              "arn:aws:airflow:us-west-2:853558080719:environment/veda-pipeline-staging-mwaa",
+              "arn:aws:airflow:us-west-2:853558080719:environment/veda-pipeline-dev-mwaa",
+              "arn:aws:airflow:us-west-2:853558080719:environment/veda-pipeline-sit-mwaa"
+          ]
+      }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_trigger_mwaa_job" {
+  provider = aws.west2
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = aws_iam_policy.lambda_trigger_mwaa_job.arn
+}
+
 #####################################################
 # Lambda
 #####################################################

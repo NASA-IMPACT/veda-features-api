@@ -1,13 +1,15 @@
 import boto3
+import http.client
 import os
+import base64
+import ast
 import json
-from botocore.config import Config
-
+mwaa_env_name = 'veda-pipeline-sit-mwaa'
+dag_name = 'veda_discover'
+mwaa_cli_command = 'dags trigger'
+client = boto3.client('mwaa')
 
 def lambda_handler(event, context):
-    print(f"[ EVENT ]: {event}")
-    west1_config = Config(region_name='us-west-1')
-    sfn = boto3.client("stepfunctions", config=west1_config)
     for record in event['Records']:
         print(f"[ RECORD ]: {record}")
         s3_event_key = record['s3']['object']['key']
@@ -16,19 +18,35 @@ def lambda_handler(event, context):
         print(f"[ S3 FILENAME TARGET ]: {s3_filename_target}")
         s3_filename_no_ext = os.path.splitext(s3_filename_target)[0]
         print(f"[ S3 FILENAME NO EXT ]: {s3_filename_no_ext}")
-        response = sfn.start_execution(
-            stateMachineArn="arn:aws:states:us-west-1:853558080719:stateMachine:veda-data-pipelines-dev-vector-stepfunction-discover",
-            input=json.dumps({
-                "discovery": "s3",
-                "collection": s3_filename_no_ext,
-                "prefix": "EIS/FEDSoutput/Snapshot/",
-                "bucket": "veda-data-store-staging",
-                "filename_regex": f"^(.*){s3_filename_target}$",
-                "vector": True
-            }),
+
+        # get web token
+        mwaa_cli_token = client.create_cli_token(
+            Name=mwaa_env_name
         )
-        print(f"[ SFN RESPONSE ]: {response}")
-    return {
-        'statusCode': 200,
-        'body': json.dumps('Hello from Lambda!')
-    }
+        print(f"[ CLI TOKEN ]: {mwaa_cli_token}")
+        serialized_args = json.dumps({
+                    "discovery": "s3",
+                    "collection": s3_filename_no_ext,
+                    "prefix": "EIS/FEDSoutput/Snapshot/",
+                    "bucket": "veda-data-store-staging",
+                    "filename_regex": f"^(.*){s3_filename_target}$",
+                    "vector": True
+        })
+        conn = http.client.HTTPSConnection(mwaa_cli_token['WebServerHostname'])
+        payload = f"{mwaa_cli_command} {dag_name} --conf '{serialized_args}'"
+        print(f"[ CLI PAYLOAD ]: {payload}")
+        headers = {
+          'Authorization': 'Bearer ' + mwaa_cli_token['CliToken'],
+          'Content-Type': 'text/plain'
+        }
+        conn.request("POST", "/aws_mwaa/cli", payload, headers)
+        res = conn.getresponse()
+        data = res.read()
+        dict_str = data.decode("UTF-8")
+        mydata = ast.literal_eval(dict_str)
+        print(f"[ DATA ]: {mydata}")
+        print(f"[ STDOUT ]: {base64.b64decode(mydata['stdout'])}")
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Hello from Lambda!')
+        }
