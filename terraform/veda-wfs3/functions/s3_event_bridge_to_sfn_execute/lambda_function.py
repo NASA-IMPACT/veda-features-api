@@ -4,10 +4,11 @@ import os
 import base64
 import ast
 import json
-mwaa_env_name = 'veda-pipeline-sit-mwaa'
+mwaa_env_name = 'veda-pipeline-staging-mwaa'
 dag_name = 'veda_discover'
 mwaa_cli_command = 'dags trigger'
 client = boto3.client('mwaa')
+
 
 def lambda_handler(event, context):
     for record in event['Records']:
@@ -46,7 +47,7 @@ def lambda_handler(event, context):
         mydata = ast.literal_eval(dict_str)
         print(f"[ DATA ]: {mydata}")
         print(f"[ STDOUT ]: {base64.b64decode(mydata['stdout'])}")
-        return {
-            'statusCode': 200,
-            'body': json.dumps('Hello from Lambda!')
-        }
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
