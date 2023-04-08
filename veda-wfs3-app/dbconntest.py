@@ -14,8 +14,7 @@ handler.setFormatter(formatter)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
-# :TECHDEBT: why do we need two `json.loads`?
-db_config = json.loads(json.loads(os.environ.get("DB_CONFIG")))
+db_config = json.loads(os.environ.get("DB_CONFIG"))
 
 os.chdir('.')
 server_object = HTTPServer(server_address=('', 8080), RequestHandlerClass=CGIHTTPRequestHandler)
