@@ -4,7 +4,7 @@ FROM ghcr.io/vincentsarago/uvicorn-gunicorn:${PYTHON_VERSION}
 
 WORKDIR /tmp
 
-COPY stack/app/requirements.txt requirements.txt
+COPY veda-wfs3-app/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
 # ENV MODULE_NAME app.handler

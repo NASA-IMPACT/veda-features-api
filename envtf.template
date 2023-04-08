@@ -1,9 +1,10 @@
 #!/bin/sh
 # copy and rename this file to `.envtf.sh` and fill out values below
 
-##################################################################
+###################################################################
 # only needed if you want to run `veda-wfs3-app/cd.sh` script
-##################################################################
+# manually as a form of CD without CI
+###################################################################
 export TARGET_ENVIRONMENT=dev
 export TARGET_PROJECT_NAME=veda-wfs3
 

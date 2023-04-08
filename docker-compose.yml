@@ -24,7 +24,6 @@ services:
       && uvicorn app.handler:app --host 0.0.0.0 --port 8081 --reload"
     volumes:
       - ./scripts:/tmp/scripts
-      - ./stack/app:/tmp/app
   database:
     build:
       dockerfile: local/Dockerfile.db
