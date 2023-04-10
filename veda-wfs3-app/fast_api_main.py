@@ -23,21 +23,29 @@ handler.setFormatter(formatter)
 logger.setLevel(logging.INFO)
 logger.addHandler(handler)
 
-db_config = json.loads(os.environ.get("DB_CONFIG"))
+try:
+    # staging/production ECS setup
+    db_config = json.loads(os.environ.get("DB_CONFIG"))
+except TypeError:
+    # local docker
+    db_config = {
+        "username": os.environ.get("POSTGRES_USER"),
+        "password": os.environ.get("POSTGRES_PASS"),
+        "host": os.environ.get("POSTGRES_HOST"),
+        "port": os.environ.get("POSTGRES_PORT"),
+        "dbname": os.environ.get("POSTGRES_DBNAME")
+    }
 
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)
-request_counter = meter.create_counter(
-    "request.counter", unit="1", description="counts the number of requests segmented by path"
-)
 total_request_counter = meter.create_counter(
     "request.total", unit="1", description="counts the number of requests"
 )
-release_counter = meter.create_up_down_counter(
-    name="release.counter", description="counts the number of releases so we can graph b/c CW metrics are trash"
+release_counter = meter.create_counter(
+    "release.counter", unit="1", description="counts the number of releases so we can graph b/c CW metrics are trash"
 )
-refresh_counter = meter.create_up_down_counter(
-    name="refresh.counter", description="counts the number of releases so we can graph b/c CW metrics are trash"
+refresh_counter = meter.create_counter(
+    "refresh.counter", unit="1", description="counts the number of releases so we can graph b/c CW metrics are trash"
 )
 
 
@@ -54,21 +62,15 @@ class LoggerRouteHandler(APIRoute):
             }
             logger.info(f"[ REQUEST SCOPE ]: {request.scope}")
             logger.info(f"[ REQUEST HEADERS ]: {request.headers}")
-            # total request counter
             total_request_counter.add(1, {"total": "total"})
-            # segment by "<REQUEST.METHOD>: <REQUEST.URL>"
-            request_counter.add(1, {"path": f"{request.method}: {request.url.path}"})
             with tracer.start_as_current_span("handle_request") as route_handler_span:
-                route_handler_span.set_attribute("request.context.path", ctx["path"])
-                route_handler_span.set_attribute("request.context.route", ctx["route"])
-                route_handler_span.set_attribute("request.context.method", ctx["method"])
                 return await original_route_handler(request)
 
         return route_handler
 
 
 # TODO: this is hack to fix the issue where our `X-Forwarded-Proto` header
-# does not seem to be reaching the FastAPI code and therefore `starlette` package
+# does not seem to be reaching the FastAPI code and b/c `starlette` package
 # isn't setting the scheme correctly, still need to figure this out
 # we are already doing everything that `uvicorn` is telling us to do
 # prior art:
@@ -117,7 +119,6 @@ async def startup_event() -> None:
         release_counter.add(1, {"release": "count"})
         await connect_to_db(app, settings=postgresql_settings)
         await register_collection_catalog(app)
-        release_counter.add(-1, {"release": "count"})
 
 
 @app.on_event("shutdown")
@@ -144,7 +145,6 @@ async def refresh(request: Request):
         refresh_counter.add(1, {"refresh": "count"})
         await connect_to_db(app, settings=postgresql_settings)
         await register_collection_catalog(app)
-        refresh_counter.add(-1, {"refresh": "count"})
         return JSONResponse(status_code=200, content={"status": "refreshed"})
 
 FastAPIInstrumentor.instrument_app(app, excluded_urls="/conformance")

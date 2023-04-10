@@ -21,7 +21,7 @@ services:
     - database
     command:
       bash -c "bash /tmp/scripts/wait-for-it.sh database:5432 --timeout=0
-      && uvicorn app.handler:app --host 0.0.0.0 --port 8081 --reload"
+      && uvicorn fast_api_main:app --host 0.0.0.0 --port 8081 --reload"
     volumes:
       - ./scripts:/tmp/scripts
   database:
