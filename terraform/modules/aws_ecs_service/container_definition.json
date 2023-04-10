@@ -95,7 +95,7 @@
       "name": "nginx-${environment}",
       "cpu": 256,
       "memory": 256,
-      "image": "nginx:latest",
+      "image": "853558080719.dkr.ecr.us-west-2.amazonaws.com/tf-veda-wfs3-registry-west2-staging:nginx",
       "essential": false,
       "dependsOn": [
         {
@@ -112,7 +112,7 @@
       "name": "aoc-statsd-emitter-${environment}",
       "cpu": 256,
       "memory": 512,
-      "image": "alpine/socat:latest",
+      "image": "853558080719.dkr.ecr.us-west-2.amazonaws.com/tf-veda-wfs3-registry-west2-staging:alpine-fslah-socat",
       "dependsOn": [
         {
           "containerName": "aws-otel-collector-${environment}",

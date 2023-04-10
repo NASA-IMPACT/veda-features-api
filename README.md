@@ -12,6 +12,12 @@ Hosting and serving collections of vector data features for VEDA
 
 ---
 
+### Architecture 
+
+![Alt text](./docs/veda-wfs3.drawio.png)
+
+---
+
 ### Local Development in Docker
 
 To locally run the site:
@@ -47,6 +53,7 @@ This uses [conventional commit methodology](https://www.conventionalcommits.org/
 
 [See Obervability and Monitoring](./docs/OBSERVABILITY.md)
 
+---
 
 ### Manual DB Setup
 
