@@ -20,7 +20,7 @@ To locally run the site:
 
 ---
 
-### Continuous Deployment for `staging` and `production`
+### Continuous Deployment for `staging`
 
 Unless you're manually deploying a `dev` environment all deploys happen through the CI/CD Github Actions. So please
 grok the `/.github/workflows/deploy.yaml`
