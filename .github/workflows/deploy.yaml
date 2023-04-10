@@ -24,7 +24,8 @@ jobs:
           IMAGE_TAG: latest
         run: |
           aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
-          cd ../../veda-wfs3-app
+          ls -lah .
+          ls -lah ../
           docker build -t $ECR_REGISTRY:$IMAGE_TAG .
           docker push $ECR_REGISTRY:$IMAGE_TAG
           echo "::set-output name=image::$ECR_REGISTRY:$IMAGE_TAG"
