@@ -147,4 +147,4 @@ async def refresh(request: Request):
         await register_collection_catalog(app)
         return JSONResponse(status_code=200, content={"status": "refreshed"})
 
-FastAPIInstrumentor.instrument_app(app, excluded_urls="/conformance")
+FastAPIInstrumentor.instrument_app(app, excluded_urls="/conformance,/healthz")

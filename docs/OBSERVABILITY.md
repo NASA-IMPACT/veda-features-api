@@ -4,15 +4,15 @@
 
 ## Dashboard
 
-to be written
+https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#dashboards:name=veda-wfs3-west2-staging
 
 ## Tracing
 
-to be written
+https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#xray:traces/query?~(query~(expression~'service*28id*28name*3a*20*22veda-wfs3-west2-staging*22*20*20*29*29)~context~())
 
 ## Alarms
 
-to be written
+https://us-west-2.console.aws.amazon.com/cloudwatch/home?region=us-west-2#alarmsV2:alarm/FireAtlas_MWAA_VectorTaskFailed?
 
 ---
 
