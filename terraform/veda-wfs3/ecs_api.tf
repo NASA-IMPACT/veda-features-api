@@ -53,6 +53,14 @@ module "ecs_cluster" {
       value = "service.name=veda-wfs3-${var.env}"
     },
     {
+      name = "OTEL_TRACES_SAMPLER"
+      value = "traceidratio"
+    },
+    {
+      name = "OTEL_TRACES_SAMPLER_ARG"
+      value = "0.5"
+    },
+    {
       name = "FORWARDED_ALLOW_IPS"
       value = "*"
     },
