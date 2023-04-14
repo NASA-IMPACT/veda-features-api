@@ -38,12 +38,6 @@ except TypeError:
 
 tracer = trace.get_tracer(__name__)
 meter = metrics.get_meter(__name__)
-total_request_counter = meter.create_counter(
-    "request.total", unit="1", description="counts the number of requests"
-)
-release_counter = meter.create_counter(
-    "release.counter", unit="1", description="counts the number of releases so we can graph b/c CW metrics are trash"
-)
 refresh_counter = meter.create_counter(
     "refresh.counter", unit="1", description="counts the number of releases so we can graph b/c CW metrics are trash"
 )
@@ -62,7 +56,6 @@ class LoggerRouteHandler(APIRoute):
             }
             logger.info(f"[ REQUEST SCOPE ]: {request.scope}")
             logger.info(f"[ REQUEST HEADERS ]: {request.headers}")
-            total_request_counter.add(1, {"total": "total"})
             with tracer.start_as_current_span("handle_request") as route_handler_span:
                 return await original_route_handler(request)
 
@@ -116,7 +109,6 @@ app.add_middleware(
 async def startup_event() -> None:
     """Connect to database on startup."""
     with tracer.start_as_current_span("startup_event"):
-        release_counter.add(1, {"release": "count"})
         await connect_to_db(app, settings=postgresql_settings)
         await register_collection_catalog(app)
 
