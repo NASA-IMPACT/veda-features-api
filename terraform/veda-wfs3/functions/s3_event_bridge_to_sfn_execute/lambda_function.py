@@ -20,6 +20,10 @@ def lambda_handler(event, context):
         s3_filename_no_ext = os.path.splitext(s3_filename_target)[0]
         print(f"[ S3 FILENAME NO EXT ]: {s3_filename_no_ext}")
 
+        bucket_key_prefix = "EIS/FEDSoutput/Snapshot/"
+        if s3_filename_no_ext.startswith("lf_"):
+            bucket_key_prefix = "EIS/FEDSoutput/LFArchive/"
+
         # get web token
         mwaa_cli_token = client.create_cli_token(
             Name=mwaa_env_name
@@ -28,7 +32,7 @@ def lambda_handler(event, context):
         serialized_args = json.dumps({
                     "discovery": "s3",
                     "collection": s3_filename_no_ext,
-                    "prefix": "EIS/FEDSoutput/Snapshot/",
+                    "prefix": bucket_key_prefix,
                     "bucket": "veda-data-store-staging",
                     "filename_regex": f"^(.*){s3_filename_target}$",
                     "vector": True
