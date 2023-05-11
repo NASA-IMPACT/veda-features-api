@@ -171,6 +171,10 @@ resource "aws_security_group_rule" "service_ingress_lb" {
 resource "aws_ecs_cluster" "service" {
   name = "tf-${var.service_name}-${var.environment}"
   tags = var.tags
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
 }
 
 resource "aws_ecs_service" "service" {
