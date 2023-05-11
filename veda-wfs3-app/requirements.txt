@@ -1,6 +1,6 @@
 # NOTE: we don't want to have to upgrade tipg or fastapi, so we force the fastapi version
 fastapi==0.94.1
-git+https://github.com/developmentseed/tipg@82691b808c1265ca0b21b7cacf122880b426e2b5
+git+https://github.com/developmentseed/tipg@a788f2a53ec6e312baf1eace97f0afc6d6e6a6af
 uvicorn==0.20.0
 boto3==1.26.28
 opentelemetry-distro[otlp]>=0.24b0
