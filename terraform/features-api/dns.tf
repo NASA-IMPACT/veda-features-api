@@ -4,10 +4,10 @@ data "aws_route53_zone" "zone" {
 }
 
 resource "aws_acm_certificate" "cert" {
-  provider = aws.west2
-  domain_name               = "*.${data.aws_route53_zone.zone.name}"
-  validation_method         = "DNS"
-  tags                      = var.tags
+  provider          = aws.west2
+  domain_name       = "*.${data.aws_route53_zone.zone.name}"
+  validation_method = "DNS"
+  tags              = var.tags
 
   lifecycle {
     create_before_destroy = true
@@ -28,7 +28,7 @@ resource "aws_route53_record" "subdomain_record" {
 }
 
 resource "aws_lb_listener_certificate" "cert" {
-  provider = aws.west2
+  provider        = aws.west2
   listener_arn    = aws_alb_listener.alb_listener_ecs.arn
   certificate_arn = aws_acm_certificate.cert.arn
 }

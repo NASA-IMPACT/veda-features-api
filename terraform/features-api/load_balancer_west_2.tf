@@ -85,7 +85,7 @@ resource "aws_alb" "alb_ecs" {
   security_groups = concat(data.aws_security_groups.security_groups.ids, [aws_security_group.https_web_inbound_sg.id])
 
   tags = merge({
-    Name        = "tf-${var.project_name}-alb"
+    Name = "tf-${var.project_name}-alb"
   }, var.tags)
 }
 

@@ -14,15 +14,15 @@ resource "random_id" "sm_suffix" {
 }
 
 resource "aws_secretsmanager_secret" "config" {
-  name                    = "aws-config-${random_id.sm_suffix.hex}"
-  kms_key_id              = data.aws_kms_key.secretsmanager.id
-  tags                    = var.tags
+  name       = "aws-config-${random_id.sm_suffix.hex}"
+  kms_key_id = data.aws_kms_key.secretsmanager.id
+  tags       = var.tags
 }
 
 resource "aws_secretsmanager_secret" "db_config" {
-  name                    = "veda-wfs3-${var.env}-db-config-v3"
-  kms_key_id              = data.aws_kms_key.secretsmanager.id
-  tags                    = var.tags
+  name       = "veda-wfs3-${var.env}-db-config-v3"
+  kms_key_id = data.aws_kms_key.secretsmanager.id
+  tags       = var.tags
 }
 
 ########################################################################
