@@ -1,9 +1,20 @@
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+
+  tags = {
+    "aws-cdk:subnet-name" = "private"
+  }
+}
+
 module "ecs_cluster" {
   source = "../modules/aws_ecs_service"
   environment = var.env
   region      = var.region
-  vpc_id      = module.networking.vpc_id
-  subnet_ids  = module.networking.private_subnets_id
+  vpc_id      = var.vpc_id
+  subnet_ids  = data.aws_subnets.private.ids
 
   service_name       = "${var.project_name}-service"
   service_port       = var.service_port
@@ -77,6 +88,7 @@ module "ecs_cluster" {
   use_adot_as_sidecar = true
   use_ecr = true
   ecr_repository_name = module.ecr_registry.registry_name
+  ecr_repository_arn = module.ecr_registry.registry_arn
   image = "${module.ecr_registry.repository_url}:latest"
 
   load_balancer = true
