@@ -78,7 +78,7 @@ module "ecs_cluster" {
     {
       // stupid hack b/c of FastAPI and Starlette bug
       name  = "FAST_API_SCHEME"
-      value = var.env == "west2-staging" ? "https" : "http"
+      value = var.env == "dev" ? "https" : "http" //quick hack for now, TODO: include 'contains' function
     }
   ]
 
