@@ -52,7 +52,6 @@ resource "aws_db_instance" "db" {
   storage_type                = "gp2"
   instance_class              = var.env == "staging" ? "db.r5.xlarge" : "db.r5.large"
   db_subnet_group_name        = aws_db_subnet_group.db.name
-  vpc_security_group_ids      = data.aws_security_groups.security_groups.ids
   skip_final_snapshot         = true
   apply_immediately           = true
   backup_retention_period     = 7
