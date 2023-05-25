@@ -56,7 +56,7 @@ resource "aws_db_instance" "db" {
   apply_immediately           = true
   backup_retention_period     = 7
   username                    = "postgres"
-  password                    = var.db_password
+  password                    = random_password.master_password.result
   allow_major_version_upgrade = true
   parameter_group_name        = aws_db_parameter_group.default.name
 }
