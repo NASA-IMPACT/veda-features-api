@@ -1,7 +1,7 @@
 module "ecr_registry" {
   source                   = "github.com/developmentseed/tf-seed/modules/aws_ecr"
   environment              = var.env
-  registry_name            = var.registry_name
+  registry_name            = var.project_name
   enable_registry_scanning = true
   mutable_image_tags       = true
   enable_deploy_user       = true

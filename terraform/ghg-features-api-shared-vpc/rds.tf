@@ -55,6 +55,7 @@ resource "aws_db_instance" "db" {
   skip_final_snapshot         = true
   apply_immediately           = true
   backup_retention_period     = 7
+  vpc_security_group_ids      = [aws_security_group.default_sg.id]
   username                    = "postgres"
   password                    = random_password.master_password.result
   allow_major_version_upgrade = true

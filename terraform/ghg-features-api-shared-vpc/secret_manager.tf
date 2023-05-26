@@ -39,7 +39,7 @@ resource "aws_secretsmanager_secret_version" "db_credentials" {
   "engine": "${aws_db_instance.db.engine}",
   "host": "${aws_db_instance.db.address}",
   "port": "${aws_db_instance.db.port}",
-  "database": "${aws_db_instance.db.db_name}"
+  "dbname": "${aws_db_instance.db.db_name}"
 }
 EOF
 }

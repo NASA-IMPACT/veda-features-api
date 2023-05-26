@@ -31,11 +31,11 @@ variable "default_secret" {
   type = map(any)
 }
 
-variable "db_password" {
-  description = "RDS root user password"
-  type        = string
-  sensitive   = true
-}
+# variable "db_password" {
+#   description = "RDS root user password"
+#   type        = string
+#   sensitive   = true
+# }
 
 variable "dns_zone_name" {
 }
