@@ -17,7 +17,3 @@ output "protocol_on_aws_alb_listener" {
   description = "HTTP/HTTPS protocol on the ALB Listener"
   value       = aws_alb_listener.alb_listener_ecs.protocol
 }
-
-output "s3_event_bridge_lambda_arn" {
-  value = "${aws_lambda_function.lambda.arn}:${aws_lambda_function.lambda.version}"
-}

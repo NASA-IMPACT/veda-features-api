@@ -1,9 +1,26 @@
+data "aws_subnets" "public" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+
+  tags = {
+    "aws-cdk:subnet-name" = "public"
+  }
+}
+
+data "aws_security_groups" "security_groups" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+}
 
 /* security group for ALB */
 resource "aws_security_group" "web_inbound_sg" {
   name        = "tf-${var.project_name}-${var.env}-web-inbound-sg"
   description = "Allow HTTP from Anywhere into ALB"
-  vpc_id      = module.networking.vpc_id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = 80
@@ -34,7 +51,7 @@ resource "aws_security_group" "web_inbound_sg" {
 resource "aws_security_group" "https_web_inbound_sg" {
   name        = "tf-${var.project_name}-${var.env}-https-web-inbound-sg"
   description = "Allow HTTPS from Anywhere into ALB"
-  vpc_id      = module.networking.vpc_id
+  vpc_id      = var.vpc_id
 
   ingress {
     from_port   = 443
@@ -64,11 +81,11 @@ resource "aws_security_group" "https_web_inbound_sg" {
 
 resource "aws_alb" "alb_ecs" {
   name            = "tf-${var.project_name}-${var.env}-alb"
-  subnets         = module.networking.public_subnets_id
-  security_groups = concat(module.networking.security_groups_ids, [aws_security_group.https_web_inbound_sg.id])
+  subnets         = data.aws_subnets.public.ids
+  security_groups = [aws_security_group.https_web_inbound_sg.id]
 
   tags = merge({
-    Name        = "tf-${var.project_name}-alb"
+    Name = "tf-${var.project_name}-alb"
   }, var.tags)
 }
 
@@ -76,7 +93,7 @@ resource "aws_alb_target_group" "alb_target_group" {
   name                 = "tf-${var.project_name}-${var.env}-tgp"
   port                 = var.service_port
   protocol             = "HTTP"
-  vpc_id               = module.networking.vpc_id
+  vpc_id               = var.vpc_id
   target_type          = "ip"
   deregistration_delay = 60
 

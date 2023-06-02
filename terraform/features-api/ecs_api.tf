@@ -1,9 +1,20 @@
+data "aws_subnets" "private" {
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+
+  tags = {
+    "aws-cdk:subnet-name" = "private"
+  }
+}
+
 module "ecs_cluster" {
-  source = "../modules/aws_ecs_service"
+  source      = "../modules/aws_ecs_service"
   environment = var.env
   region      = var.region
-  vpc_id      = module.networking.vpc_id
-  subnet_ids  = module.networking.private_subnets_id
+  vpc_id      = var.vpc_id
+  subnet_ids  = data.aws_subnets.private.ids
 
   service_name       = "${var.project_name}-service"
   service_port       = var.service_port
@@ -18,11 +29,11 @@ module "ecs_cluster" {
 
   container_secrets = [
     {
-      name = "AWS_CONFIG"
+      name      = "AWS_CONFIG"
       valueFrom = aws_secretsmanager_secret.config.arn
     },
     {
-      name = "DB_CONFIG"
+      name      = "DB_CONFIG"
       valueFrom = aws_secretsmanager_secret.db_config.arn
     },
   ]
@@ -37,53 +48,54 @@ module "ecs_cluster" {
       value = "True"
     },
     {
-      name = "OTEL_PROPAGATORS"
+      name  = "OTEL_PROPAGATORS"
       value = "xray"
     },
     {
-      name = "OTEL_PYTHON_ID_GENERATOR"
+      name  = "OTEL_PYTHON_ID_GENERATOR"
       value = "xray"
     },
     {
-      name = "OTEL_RESOURCE_ATTRIBUTES"
+      name  = "OTEL_RESOURCE_ATTRIBUTES"
       value = "service.name=veda-wfs3-${var.env}"
     },
     {
-      name = "OTEL_RESOURCE_ATTRIBUTES"
+      name  = "OTEL_RESOURCE_ATTRIBUTES"
       value = "service.name=veda-wfs3-${var.env}"
     },
     {
-      name = "OTEL_TRACES_SAMPLER"
+      name  = "OTEL_TRACES_SAMPLER"
       value = "traceidratio"
     },
     {
-      name = "OTEL_TRACES_SAMPLER_ARG"
+      name  = "OTEL_TRACES_SAMPLER_ARG"
       value = "0.5"
     },
     {
-      name = "FORWARDED_ALLOW_IPS"
+      name  = "FORWARDED_ALLOW_IPS"
       value = "*"
     },
     {
       // stupid hack b/c of FastAPI and Starlette bug
-      name = "FAST_API_SCHEME"
-      value = var.env == "west2-staging" ? "https" : "http"
+      name  = "FAST_API_SCHEME"
+      value = var.env == "dev" ? "https" : "http" //quick hack for now, TODO: include 'contains' function
     }
   ]
 
-  container_ingress_cidrs = ["0.0.0.0/0"]
+  container_ingress_cidrs  = ["0.0.0.0/0"]
   container_ingress_sg_ids = []
 
-  use_adot_as_sidecar = true
-  use_ecr = true
+  use_adot_as_sidecar = false
+  use_ecr             = true
   ecr_repository_name = module.ecr_registry.registry_name
-  image = "${module.ecr_registry.repository_url}:latest"
+  ecr_repository_arn  = module.ecr_registry.registry_arn
+  image               = "${module.ecr_registry.repository_url}:latest"
 
-  load_balancer = true
-  lb_type = "application"
-  lb_target_group_arn = aws_alb_target_group.alb_target_group.arn
+  load_balancer        = true
+  lb_type              = "application"
+  lb_target_group_arn  = aws_alb_target_group.alb_target_group.arn
   lb_security_group_id = aws_security_group.web_inbound_sg.id
-  lb_container_port = var.service_port
+  lb_container_port    = var.service_port
 
   tags = var.tags
 }

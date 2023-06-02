@@ -1,10 +1,10 @@
 ########################################################################
 # Data Bits
 ########################################################################
-data "aws_ecr_repository" "service" {
-  count = var.use_ecr ? 1 : 0
-  name  = var.ecr_repository_name
-}
+# data "aws_ecr_repository" "service" {
+#   count = var.use_ecr ? 1 : 0
+#   name  = var.ecr_repository_name
+# }
 
 
 ########################################################################
@@ -64,7 +64,7 @@ data "aws_iam_policy_document" "ecs_ecr_access_attachment" {
     ]
 
     resources = [
-      data.aws_ecr_repository.service[0].arn,
+      var.ecr_repository_arn,
     ]
   }
 
@@ -207,29 +207,6 @@ resource "aws_ecs_service" "service" {
   }
 }
 
-data "template_file" "container_definition" {
-  // NOTE: the container definition `name` has to be the same as the service 
-  // for the load balancer to attach and discover correctly even though 
-  // this ticket says it should work otherwise :shrug:
-  // https://github.com/hashicorp/terraform/issues/2888
-  template = file("${path.module}/container_definition.json")
-
-  vars = {
-    service_name          = var.service_name
-    environment           = var.environment
-    image                 = var.image
-    container_command     = length(var.container_command) > 0 ? jsonencode(var.container_command) : ""
-    working_directory     = var.container_working_directory
-    container_secrets     = jsonencode(var.container_secrets)
-    container_environment = jsonencode(var.container_environment)
-    service_protocol      = var.service_protocol
-    service_port          = var.service_port
-    use_adot_as_sidecar   = var.use_adot_as_sidecar ? "on" : ""
-    log_group             = aws_cloudwatch_log_group.service.name
-    region                = var.region
-  }
-}
-
 resource "aws_ecs_task_definition" "service" {
   family                   = "tf-${var.service_name}-${var.environment}"
   requires_compatibilities = ["FARGATE"]
@@ -239,7 +216,22 @@ resource "aws_ecs_task_definition" "service" {
   tags                     = var.tags
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_execution_role.arn
-  container_definitions    = data.template_file.container_definition.rendered
+  container_definitions    = templatefile("${path.module}/container_definition.tftpl",
+      {
+          service_name          = var.service_name
+          environment           = var.environment
+          image                 = var.image
+          container_command     = length(var.container_command) > 0 ? jsonencode(var.container_command) : ""
+          working_directory     = var.container_working_directory
+          container_secrets     = jsonencode(var.container_secrets)
+          container_environment = jsonencode(var.container_environment)
+          service_protocol      = var.service_protocol
+          service_port          = var.service_port
+          use_adot_as_sidecar   = var.use_adot_as_sidecar ? "on" : ""
+          log_group             = aws_cloudwatch_log_group.service.name
+          region                = var.region
+        }
+      )
 }
 
 #######################################################################

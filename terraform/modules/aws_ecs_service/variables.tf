@@ -11,7 +11,9 @@ variable "tags" {
 }
 
 variable "service_name" {}
-variable "service_port" {}
+variable "service_port" {
+  type    = number
+}
 
 variable "service_protocol" {
   type    = string
@@ -114,6 +116,8 @@ variable "use_adot_as_sidecar" {
 }
 
 variable "ecr_repository_name" {}
+variable "ecr_repository_arn" {}
+
 variable "image" {}
 
 variable "load_balancer" {
