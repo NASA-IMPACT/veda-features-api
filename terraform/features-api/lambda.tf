@@ -1,3 +1,33 @@
+resource "aws_lambda_function" "lambda_init_db" {
+  code_signing_config_arn = ""
+  description             = "Lambda function to init medium DB"
+  image_uri               = "${module.ecr_registry_db.repository_url}:latest"
+  function_name           = "${var.project_name}-${var.env}-initdb-function"
+  role                    = aws_iam_role.iam_for_lambda.arn
+  package_type            = "Image"
+
+  image_config {
+    command = ["handler.handler"]
+  }
+
+  depends_on = [
+    aws_iam_role_policy.lambda_execution_role_policy,
+    aws_cloudwatch_log_group.lambda_cloudwatch_group,
+    aws_db_instance.db
+  ]
+
+  vpc_config {
+    subnet_ids         = data.aws_subnets.private.ids
+    security_group_ids = [aws_security_group.lambda-db-init.id]
+  }
+  environment {
+    variables = {
+      CONN_SECRET_ARN = aws_secretsmanager_secret.db_config.arn
+    }
+  }
+}
+
+
 resource "aws_lambda_invocation" "db_init" {
   function_name = aws_lambda_function.lambda_init_db.function_name
 
@@ -9,9 +39,9 @@ resource "aws_lambda_invocation" "db_init" {
     }
   })
 
-  triggers = {
-    folder_path = sha1(join("", [for f in fileset("../../db", "*") : filesha1("../../db/${f}")]))
-  }
+  # triggers = {
+  #   folder_path = sha1(join("", [for f in fileset("../../db", "*") : filesha1("../../db/${f}")]))
+  # }
 
   # triggers = {
   #   handler_file_path = filemd5("../../db/handler.py")
@@ -109,32 +139,5 @@ resource "aws_cloudwatch_log_group" "lambda_cloudwatch_group" {
   retention_in_days = 14
 }
 
-resource "aws_lambda_function" "lambda_init_db" {
-  code_signing_config_arn = ""
-  description             = "Lambda function to init medium DB"
-  image_uri               = "${module.ecr_registry_db.repository_url}:latest"
-  function_name           = "${var.project_name}-${var.env}-initdb-function"
-  role                    = aws_iam_role.iam_for_lambda.arn
-  package_type            = "Image"
 
-  image_config {
-    command = ["handler.handler"]
-  }
-
-  depends_on = [
-    aws_iam_role_policy.lambda_execution_role_policy,
-    aws_cloudwatch_log_group.lambda_cloudwatch_group,
-    aws_db_instance.db
-  ]
-
-  vpc_config {
-    subnet_ids         = data.aws_subnets.private.ids
-    security_group_ids = [aws_security_group.lambda-db-init.id]
-  }
-  environment {
-    variables = {
-      CONN_SECRET_ARN = aws_secretsmanager_secret.db_config.arn
-    }
-  }
-}
 

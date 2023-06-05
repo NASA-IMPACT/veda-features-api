@@ -64,7 +64,6 @@ import os
 def get_secret(secret_name):
     """Get Secrets from secret manager."""
     print(f"Fetching {secret_name}...")
-    print("This is a not a test...")
     client = boto3.client(service_name="secretsmanager")
     response = client.get_secret_value(SecretId=secret_name)
     return json.loads(response["SecretString"])
@@ -199,12 +198,3 @@ def handler(event, context):
     return {
         'message' : connection_params
     }
-
-# def handler(event, context):
-#     # if event["tf"]["action"] in ["create", "update"]:
-#     message = 'Hello There {} {}!'.format(event['first_name'], event['last_name'])
-#     print(event["tf"])
-#     print(f"Hello there, {event['first_name']} {event['last_name']}")  
-#     return { 
-#         'message' : message
-#     }
