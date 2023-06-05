@@ -22,25 +22,6 @@ resource "aws_security_group" "lambda-db-init" {
   }
 }
 
-
-# module "lambda_security_group" {
-#   source  = "terraform-aws-modules/security-group/aws"
-#   version = "~> 4"
-
-#   name        = "${var.project_name}-${var.env}-lambda-db-init"
-#   description = "Lambda PG init security group"
-#   vpc_id      = var.vpc_id
-#   egress_with_cidr_blocks = [
-#     {
-#       from_port   = 0
-#       to_port     = 0
-#       protocol    = "-1"
-#       description = "Allow all"
-#       cidr_blocks = "0.0.0.0/0"
-#     }
-#   ]
-# }
-
 resource "aws_security_group_rule" "ecs_service_port_addon" {
   description              = "opened for ECS service port"
   type                     = "ingress"
