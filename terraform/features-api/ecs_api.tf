@@ -87,9 +87,9 @@ module "ecs_cluster" {
 
   use_adot_as_sidecar = false
   use_ecr             = true
-  ecr_repository_name = module.ecr_registry.registry_name
-  ecr_repository_arn  = module.ecr_registry.registry_arn
-  image               = "${module.ecr_registry.repository_url}:latest"
+  ecr_repository_name = module.ecr_registry_wfs.registry_name
+  ecr_repository_arn  = module.ecr_registry_wfs.registry_arn
+  image               = "${module.ecr_registry_wfs.repository_url}:latest"
 
   load_balancer        = true
   lb_type              = "application"

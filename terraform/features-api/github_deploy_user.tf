@@ -1,5 +1,5 @@
 resource "aws_iam_user" "deploy_user" {
-  name = "veda-wfs3-${var.env}-deploy-user"
+  name = "${var.project_name}-${var.env}-deploy-user"
   path = "/"
   tags = var.tags
 }
@@ -23,7 +23,7 @@ data "aws_iam_policy_document" "extended_deploy" {
     ]
 
     resources = [
-      module.ecr_registry.registry_arn,
+      module.ecr_registry_wfs.registry_arn,
       module.ecs_cluster.service_cluster_arn,
       module.ecs_cluster.service_arn,
       module.ecs_cluster.ecs_execution_role_arn,

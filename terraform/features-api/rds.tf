@@ -42,7 +42,7 @@ resource "aws_db_parameter_group" "default" {
 }
 
 resource "aws_db_instance" "db" {
-  db_name        = "veda"
+  db_name        = "ghgc"
   identifier     = "${var.project_name}-${var.env}"
   engine         = "postgres"
   engine_version = "14.3"
