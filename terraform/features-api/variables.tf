@@ -44,7 +44,13 @@ variable "dns_subdomain" {
 
 }
 
-variable "alb_protocol" {}
+variable "alb_protocol" {
+  default = "HTTPS"
+}
 
 variable "vpc_id" {}
 
+variable "db_public_subnet" {
+  type = bool
+  default = true
+}

@@ -5,7 +5,7 @@ data "aws_subnets" "private" {
   }
 
   tags = {
-    "aws-cdk:subnet-name" = "private"
+    "aws-cdk:subnet-name" = var.db_public_subnet ? "public" : "private"
   }
 }
 
