@@ -13,12 +13,12 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 4.0"
+      version = "~> 5.0"
     }
   }
   backend "s3" {
-    bucket         = "veda-wfs3-tf-state-bucket"
-    key            = "root"
-    region         = "us-west-1"
+    bucket = "ghg-wfs3-tf-state-bucket"
+    key    = "root"
+    region = "us-west-2"
   }
 }

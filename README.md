@@ -1,6 +1,6 @@
-# VEDA Features API
+# GHGC Features API
 
-Hosting and serving collections of vector data features for VEDA
+Hosting and serving collections of vector data features for GHGC
 
 ---
 

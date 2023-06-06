@@ -130,13 +130,13 @@ async def ping():
     return JSONResponse(status_code=200, content={"ping": "pong"})
 
 
-@app.get("/refresh")
-async def refresh(request: Request):
-    """Return parsed catalog data for testing."""
-    with tracer.start_as_current_span("refresh"):
-        refresh_counter.add(1, {"refresh": "count"})
-        await connect_to_db(app, settings=postgresql_settings)
-        await register_collection_catalog(app)
-        return JSONResponse(status_code=200, content={"status": "refreshed"})
+# @app.get("/refresh")
+# async def refresh(request: Request):
+#     """Return parsed catalog data for testing."""
+#     with tracer.start_as_current_span("refresh"):
+#         refresh_counter.add(1, {"refresh": "count"})
+#         await connect_to_db(app, settings=postgresql_settings)
+#         await register_collection_catalog(app)
+#         return JSONResponse(status_code=200, content={"status": "refreshed"})
 
 FastAPIInstrumentor.instrument_app(app, excluded_urls="/conformance,/healthz")
