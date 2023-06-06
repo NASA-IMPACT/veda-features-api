@@ -1,0 +1,73 @@
+name: Deploy
+
+inputs:
+  env_aws_secret_name:
+    required: true
+    type: string
+  env-file:
+    required: true
+    type: string
+  dir:
+    required: false
+    type: string
+    default: "."
+
+runs:
+  using: "composite"
+
+  steps:
+    - name: Set up Python
+      if: env.infra_deploy
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        cache: "pip"
+
+    - name: Install python dependencies
+      if: env.infra_deploy
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+      run: pip install -r deploy_requirements.txt
+
+    - name: Get relevant environment configuration from aws secrets
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+      run: |
+        ./scripts/sync-env.sh ${{ inputs.env_aws_secret_name }}
+
+    - name: Setup Terraform
+      if: env.infra_deploy
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.3.3
+
+    # - name: Deploy
+    #   if: env.infra_deploy
+    #   shell: bash
+    #   working-directory: ${{ inputs.dir }}
+    #   run: |
+    #     ./scripts/deploy.sh ${{ inputs.env-file }} <<< init
+    #     ./scripts/deploy.sh ${{ inputs.env-file }} <<< deploy
+
+    - name: Docker build, tag, and push image to Amazon ECR
+      env:
+        IMAGE_TAG: latest
+        ECR_REGISTRY: format('{0}.dkr.ecr.{1}.amazonaws.com/{2}-registry-{3}', env.ACCOUNT_ID, env.AWS_REGION, env.APP_NAME, env.STAGE)
+      run: |
+        echo $ECR_REGISTRY
+        echo $IMAGE_TAG
+        # aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
+        # cd veda-wfs3-app
+        # docker build -t $ECR_REGISTRY }}:$IMAGE_TAG }} .
+        # docker push $ECR_REGISTRY }}:$IMAGE_TAG }}
+
+    - name: ECS refresh service
+      env:
+        ECS_SERVICE_NAME: format('{0}-service-{1}', env.APP_NAME, env.STAGE)
+      run: |
+        echo $ECS_SERVICE_NAME
+        # aws ecs update-service \
+        #   --cluster $ECS_SERVICE_NAME \
+        #   --service $ECS_SERVICE_NAME \
+        #   --task-definition $ECS_SERVICE_NAME \
+        #   --force-new-deployment
