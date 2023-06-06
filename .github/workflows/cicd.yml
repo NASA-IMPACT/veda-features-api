@@ -26,6 +26,8 @@ jobs:
             echo "env_name=development" >> $GITHUB_OUTPUT
           elif [ "${{ github.ref }}" = "refs/heads/production" ]; then
             echo "env_name=production" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" = "refs/heads/update-workflows" ]; then
+            echo "env_name=development" >> $GITHUB_OUTPUT
           fi
       - name: Print the environment
         run: echo "The environment is ${{ steps.define_environment.outputs.env_name }}"
