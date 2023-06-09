@@ -4,8 +4,7 @@ module "ecr_registry_wfs" {
   registry_name            = var.project_name
   enable_registry_scanning = true
   mutable_image_tags       = true
-  enable_deploy_user       = true
-  iam_deploy_username      = aws_iam_user.deploy_user.name
+  enable_deploy_user       = false
   tags                     = var.tags
 }
 
@@ -15,8 +14,7 @@ module "ecr_registry_db" {
   registry_name            = "${var.project_name}-db"
   enable_registry_scanning = true
   mutable_image_tags       = true
-  enable_deploy_user       = true
-  iam_deploy_username      = aws_iam_user.deploy_user.name
+  enable_deploy_user       = false
   tags                     = var.tags
 }
 
