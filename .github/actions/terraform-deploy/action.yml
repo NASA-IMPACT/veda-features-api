@@ -39,7 +39,7 @@ runs:
       if: vars.infra_deploy
       uses: hashicorp/setup-terraform@v2
       with:
-        terraform_version: 1.3.3
+        terraform_version: 1.3.9
 
     - name: Deploy
       if: vars.infra_deploy
