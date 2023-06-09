@@ -41,13 +41,13 @@ runs:
       with:
         terraform_version: 1.3.3
 
-    # - name: Deploy
-    #   if: env.infra_deploy
-    #   shell: bash
-    #   working-directory: ${{ inputs.dir }}
-    #   run: |
-    #     ./scripts/deploy.sh ${{ inputs.env-file }} <<< init
-    #     ./scripts/deploy.sh ${{ inputs.env-file }} <<< deploy
+    - name: Deploy
+      if: env.infra_deploy
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+      run: |
+        ./scripts/deploy.sh .env <<< init
+        # ./scripts/deploy.sh .env <<< deploy
 
     - name: Docker build, tag, and push image to Amazon ECR
       shell: bash
