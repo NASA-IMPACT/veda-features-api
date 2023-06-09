@@ -19,6 +19,7 @@ variable "tags" {
 variable "availability_zones" {
   type        = list(any)
   description = "The az that the resources will be launched"
+  default = ["us-west-2a", "us-west-2b"]
 }
 
 variable "service_port" {}
