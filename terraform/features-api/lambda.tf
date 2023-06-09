@@ -126,6 +126,7 @@ data "aws_iam_policy_document" "lambda_policy" {
 resource "aws_iam_role" "iam_for_lambda" {
   name               = "${var.project_name}-${var.env}-lambda-initdb-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
+  permissions_boundary = "arn:aws:iam::444055461661:policy/ghgc-features-api-permissions-boundary"
 }
 
 resource "aws_iam_role_policy" "lambda_execution_role_policy" {
