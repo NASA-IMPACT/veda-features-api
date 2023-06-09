@@ -16,12 +16,12 @@ runs:
   using: "composite"
 
   steps:
-    - name: Set up Python
-      if: vars.infra_deploy
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
-        cache: "pip"
+    # - name: Set up Python
+    #   if: vars.infra_deploy
+    #   uses: actions/setup-python@v4
+    #   with:
+    #     python-version: "3.10"
+    #     cache: "pip"
 
     # - name: Install python dependencies
     #   if: vars.infra_deploy
@@ -47,7 +47,7 @@ runs:
       working-directory: ${{ inputs.dir }}
       run: |
         bash ./scripts/deploy.sh .env <<< init
-        # ./scripts/deploy.sh .env <<< deploy
+        bash ./scripts/deploy.sh .env <<< deploy
 
     - name: Docker build, tag, and push image to Amazon ECR
       shell: bash
