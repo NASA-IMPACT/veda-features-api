@@ -130,5 +130,4 @@ resource "aws_iam_role_policy" "api_ecs_execution_role_policy" {
   name   = "${var.project_name}-api-access-secret-manager"
   role   = module.ecs_cluster.ecs_execution_role_id
   policy = data.aws_iam_policy_document.api_ecs_execution_attachment.json
-  permissions_boundary = "arn:aws:iam::444055461661:policy/mcp-tenantOperator"
 }
