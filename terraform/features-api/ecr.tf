@@ -5,6 +5,7 @@ module "ecr_registry_wfs" {
   enable_registry_scanning = true
   mutable_image_tags       = true
   enable_deploy_user       = false
+  iam_deploy_username = null
   tags                     = var.tags
 }
 
@@ -15,6 +16,7 @@ module "ecr_registry_db" {
   enable_registry_scanning = true
   mutable_image_tags       = true
   enable_deploy_user       = false
+  iam_deploy_username = null
   tags                     = var.tags
 }
 
