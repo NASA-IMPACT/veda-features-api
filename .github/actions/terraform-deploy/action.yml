@@ -23,11 +23,11 @@ runs:
         python-version: "3.10"
         cache: "pip"
 
-    - name: Install python dependencies
-      if: vars.infra_deploy
-      shell: bash
-      working-directory: ${{ inputs.dir }}
-      run: pip install -r deploy_requirements.txt
+    # - name: Install python dependencies
+    #   if: vars.infra_deploy
+    #   shell: bash
+    #   working-directory: ${{ inputs.dir }}
+    #   run: pip install -r deploy_requirements.txt
 
     - name: Get relevant environment configuration from aws secrets
       shell: bash
