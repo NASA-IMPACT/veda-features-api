@@ -22,6 +22,8 @@ $ tfenv use 1.3.9
 5. we also use Terraform "workspaces" so our infra state stays nicely separated in the same S3 bucket. Some quick samples of how to interact with that:
 
 ```bash
+$ AWS_PROFILE=<account> terraform workspace new west2-staging
+
 $ AWS_PROFILE=<account> terraform workspace list        
 * default
   west2-staging

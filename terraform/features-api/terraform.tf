@@ -17,7 +17,7 @@ terraform {
     }
   }
   backend "s3" {
-    bucket = "ghg-wfs3-tf-state-bucket"
+    bucket = "ghgc-features-tf-state-bucket"
     key    = "root"
     region = "us-west-2"
   }
