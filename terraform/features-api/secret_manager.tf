@@ -25,7 +25,7 @@ resource "aws_secretsmanager_secret" "config" {
 }
 
 resource "aws_secretsmanager_secret" "db_config" {
-  name       = "${var.project_name}-wfs3-${var.env}-db"
+  name       = "${var.project_name}-wfs3-${var.env}-db-secrets"
   kms_key_id = data.aws_kms_key.secretsmanager.id
   tags       = var.tags
 }

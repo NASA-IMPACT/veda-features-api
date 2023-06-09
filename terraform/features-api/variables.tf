@@ -38,14 +38,15 @@ variable "default_secret" {
 # }
 
 variable "dns_zone_name" {
+  default = null
 }
 
 variable "dns_subdomain" {
-
+  default = null
 }
 
 variable "alb_protocol" {
-  default = "HTTPS"
+  default = "HTTP"
 }
 
 variable "vpc_id" {}

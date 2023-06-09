@@ -17,3 +17,7 @@ output "protocol_on_aws_alb_listener" {
   description = "HTTP/HTTPS protocol on the ALB Listener"
   value       = aws_alb_listener.alb_listener_ecs.protocol
 }
+
+output "alb_url" {
+  value = "https://${aws_alb.alb_ecs.dns_name}"
+}

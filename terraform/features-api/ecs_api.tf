@@ -78,7 +78,7 @@ module "ecs_cluster" {
     {
       // stupid hack b/c of FastAPI and Starlette bug
       name  = "FAST_API_SCHEME"
-      value = var.env == "dev" ? "https" : "http" //quick hack for now, TODO: include 'contains' function
+      value = "http" //quick hack for now, TODO: include 'contains' function
     }
   ]
 
@@ -94,7 +94,7 @@ module "ecs_cluster" {
   load_balancer        = true
   lb_type              = "application"
   lb_target_group_arn  = aws_alb_target_group.alb_target_group.arn
-  lb_security_group_id = aws_security_group.web_inbound_sg.id
+  lb_security_group_id = aws_security_group.https_web_inbound_sg.id
   lb_container_port    = var.service_port
 
   tags = var.tags
