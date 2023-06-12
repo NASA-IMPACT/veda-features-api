@@ -12,7 +12,7 @@ variable "project_name" {
 
 variable "tags" {
   type        = map(any)
-  default     = {}
+  default     = {"project": "ghgc", "service": "ghgc-features-api-dev"}
   description = "Optional tags to add to resources"
 }
 
@@ -22,7 +22,9 @@ variable "availability_zones" {
   default = ["us-west-2a", "us-west-2b"]
 }
 
-variable "service_port" {}
+variable "service_port" {
+  default = 8080
+}
 
 # Key/Value default to prevent task definitions from stopping at runtime
 variable "default_secret" {
@@ -51,8 +53,3 @@ variable "alb_protocol" {
 }
 
 variable "vpc_id" {}
-
-variable "db_public_subnet" {
-  type = bool
-  default = true
-}

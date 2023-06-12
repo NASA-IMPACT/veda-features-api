@@ -22,12 +22,14 @@ resource "aws_secretsmanager_secret" "config" {
   name       = "aws-config-${random_id.sm_suffix.hex}"
   kms_key_id = data.aws_kms_key.secretsmanager.id
   tags       = var.tags
+  recovery_window_in_days = 0
 }
 
 resource "aws_secretsmanager_secret" "db_config" {
   name       = "${var.project_name}-wfs3-${var.env}-db-secrets"
   kms_key_id = data.aws_kms_key.secretsmanager.id
   tags       = var.tags
+  recovery_window_in_days = 0
 }
 
 resource "aws_secretsmanager_secret_version" "db_credentials" {

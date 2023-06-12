@@ -27,7 +27,6 @@ resource "aws_lambda_function" "lambda_init_db" {
   }
 }
 
-
 resource "aws_lambda_invocation" "db_init" {
   function_name = aws_lambda_function.lambda_init_db.function_name
 
@@ -137,7 +136,9 @@ resource "aws_iam_role_policy" "lambda_execution_role_policy" {
 
 resource "aws_cloudwatch_log_group" "lambda_cloudwatch_group" {
   name              = "/aws/lambda/${var.project_name}-${var.env}-initdb-function"
-  retention_in_days = 14
+  retention_in_days = 1
+  tags              = var.tags
+  skip_destroy = false
 }
 
 

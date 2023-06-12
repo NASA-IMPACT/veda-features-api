@@ -19,5 +19,5 @@ output "protocol_on_aws_alb_listener" {
 }
 
 output "alb_url" {
-  value = "https://${aws_alb.alb_ecs.dns_name}"
+  value = "http://${aws_alb.alb_ecs.dns_name}"
 }

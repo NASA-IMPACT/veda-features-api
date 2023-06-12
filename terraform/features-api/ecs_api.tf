@@ -5,7 +5,7 @@ data "aws_subnets" "private" {
   }
 
   tags = {
-    "aws-cdk:subnet-name" = var.db_public_subnet ? "public" : "private"
+    "aws-cdk:subnet-name" = "private"
   }
 }
 
@@ -78,7 +78,7 @@ module "ecs_cluster" {
     {
       // stupid hack b/c of FastAPI and Starlette bug
       name  = "FAST_API_SCHEME"
-      value = "http" //quick hack for now, TODO: include 'contains' function
+      value = "https" //quick hack for now, TODO: include 'contains' function
     }
   ]
 
