@@ -78,7 +78,7 @@ module "ecs_cluster" {
     {
       // stupid hack b/c of FastAPI and Starlette bug
       name  = "FAST_API_SCHEME"
-      value = "https" //quick hack for now, TODO: include 'contains' function
+      value = "http" //quick hack for now, TODO: include 'contains' function
     }
   ]
 
