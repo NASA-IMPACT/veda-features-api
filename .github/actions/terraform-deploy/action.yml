@@ -16,18 +16,16 @@ runs:
   using: "composite"
 
   steps:
-    # - name: Set up Python
-    #   if: vars.infra_deploy
-    #   uses: actions/setup-python@v4
-    #   with:
-    #     python-version: "3.10"
-    #     cache: "pip"
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+        cache: "pip"
 
-    # - name: Install python dependencies
-    #   if: vars.infra_deploy
-    #   shell: bash
-    #   working-directory: ${{ inputs.dir }}
-    #   run: pip install -r deploy_requirements.txt
+    - name: Install python dependencies
+      shell: bash
+      working-directory: ${{ inputs.dir }}
+      run: pip install -r deploy_requirements.txt
 
     - name: Get relevant environment configuration from aws secrets
       shell: bash
@@ -36,13 +34,11 @@ runs:
         ./scripts/sync-env.sh ${{ inputs.env_aws_secret_name }}
 
     - name: Setup Terraform
-      if: vars.infra_deploy
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: 1.3.9
 
     - name: Deploy
-      if: vars.infra_deploy
       shell: bash
       working-directory: ${{ inputs.dir }}
       run: |
