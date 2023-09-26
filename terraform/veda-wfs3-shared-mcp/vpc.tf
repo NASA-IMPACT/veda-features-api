@@ -18,7 +18,7 @@ data "aws_subnets" "private_subnet_ids" {
   }
 
   tags = {
-    "aws-cdk:subnet-name" = "*private*"
+    "${tolist(keys(var.private_subnet_tag))[0]}" = "${tolist(values(var.private_subnet_tag))[0]}"
   }
 }
 
@@ -29,7 +29,7 @@ data "aws_subnets" "public_subnet_ids" {
   }
 
   tags = {
-    "aws-cdk:subnet-name" = "*public*"
+    "${tolist(keys(var.public_subnet_tag))[0]}" = "${tolist(values(var.public_subnet_tag))[0]}"
   }
 }
 

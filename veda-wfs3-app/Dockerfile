@@ -17,6 +17,7 @@ RUN apt-get -y update \
             locales \
             tzdata \
             wget \
+            postgresql-client-14 \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
