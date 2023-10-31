@@ -26,7 +26,9 @@ runs:
     - name: Install python dependencies
       shell: bash
       working-directory: ${{ inputs.dir }}
-      run: pip install -r deploy_requirements.txt
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install boto3
 
     - name: Get relevant environment configuration from aws secrets
       shell: bash
@@ -55,27 +57,3 @@ runs:
         bash ./scripts/deploy.sh .env <<< init
         bash ./scripts/deploy.sh .env <<< deploy
 
-#    - name: Docker build, tag, and push image to Amazon ECR
-#      shell: bash
-#      env:
-#        IMAGE_TAG: latest
-#        ECR_REGISTRY: ${{ format('{0}.dkr.ecr.{1}.amazonaws.com/{2}-registry-{3}', env.ACCOUNT_ID, env.AWS_REGION, env.APP_NAME, env.STAGE) }}
-#      run: |
-#        echo $ECR_REGISTRY
-#        echo $IMAGE_TAG
-#        # aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_REGISTRY
-#        # cd veda-wfs3-app
-#        # docker build -t $ECR_REGISTRY }}:$IMAGE_TAG }} .
-#        # docker push $ECR_REGISTRY }}:$IMAGE_TAG }}
-#
-#    - name: ECS refresh service
-#      shell: bash
-#      env:
-#        ECS_SERVICE_NAME: ${{ format('{0}-service-{1}', env.APP_NAME, env.STAGE) }}
-#      run: |
-#        echo $ECS_SERVICE_NAME
-#        # aws ecs update-service \
-#        #   --cluster $ECS_SERVICE_NAME \
-#        #   --service $ECS_SERVICE_NAME \
-#        #   --task-definition $ECS_SERVICE_NAME \
-#        #   --force-new-deployment
