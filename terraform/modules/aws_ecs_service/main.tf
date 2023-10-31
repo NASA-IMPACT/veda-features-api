@@ -6,7 +6,10 @@
 #   name  = var.ecr_repository_name
 # }
 
-
+data "aws_caller_identity" "current" {}
+locals {
+  permissions_boundary = var.permissions_boundary_policy_name == "" ? null : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
+}
 ########################################################################
 # IAM
 ########################################################################
@@ -25,7 +28,7 @@ resource "aws_iam_role" "ecs_execution_role" {
   name               = "${var.service_name}-${var.environment}_ecs_task_execution_role"
   assume_role_policy = data.aws_iam_policy_document.ecs_assume_role_policy.json
   tags               = var.tags
-  permissions_boundary = "arn:aws:iam::444055461661:policy/mcp-tenantOperator"
+  permissions_boundary = local.permissions_boundary
 }
 
 data "aws_iam_policy_document" "ecs_execution_attachment" {

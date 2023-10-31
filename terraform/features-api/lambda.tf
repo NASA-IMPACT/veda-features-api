@@ -1,3 +1,7 @@
+data "aws_caller_identity" "current" {}
+locals {
+  permissions_boundary = var.permissions_boundary_policy_name == "" ? null : "arn:aws:iam::${data.aws_caller_identity.current.account_id}:policy/${var.permissions_boundary_policy_name}"
+}
 resource "aws_lambda_function" "lambda_init_db" {
   code_signing_config_arn = ""
   description             = "Lambda function to init medium DB"
@@ -125,7 +129,7 @@ data "aws_iam_policy_document" "lambda_policy" {
 resource "aws_iam_role" "iam_for_lambda" {
   name               = "${var.project_name}-${var.env}-lambda-initdb-role"
   assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_policy.json
-  permissions_boundary = "arn:aws:iam::444055461661:policy/mcp-tenantOperator"
+  permissions_boundary = local.permissions_boundary
 }
 
 resource "aws_iam_role_policy" "lambda_execution_role_policy" {

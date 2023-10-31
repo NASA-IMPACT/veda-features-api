@@ -5,7 +5,7 @@ data "aws_subnets" "public" {
   }
 
   tags = {
-    "aws-cdk:subnet-name" = "public"
+    "Scope" = "public"
   }
 }
 

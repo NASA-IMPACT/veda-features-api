@@ -98,6 +98,7 @@ module "ecs_cluster" {
   lb_container_port    = var.service_port
 
   tags = var.tags
+  permissions_boundary_policy_name = var.permissions_boundary_policy_name
 }
 
 ##############################################################
