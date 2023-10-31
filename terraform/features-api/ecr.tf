@@ -22,7 +22,7 @@ module "ecr_registry_db" {
 
 resource "null_resource" "build_ecr_image_wfs" {
   triggers = {
-    folder_path = sha1(join("", [for f in fileset("../../wfs3-app", "*") : filesha1("../../wfs3-app/${f}")]))
+    folder_path = sha1(join("", [for f in fileset("../../wfs3-app", "**") : filesha1("../../wfs3-app/${f}")]))
     # handler_file_path = filemd5("../../wfs3-app/fast_api_main.py")
     # docker_file_path  = filemd5("../../wfs3-app/Dockerfile")
   }
@@ -40,7 +40,7 @@ resource "null_resource" "build_ecr_image_wfs" {
 
 resource "null_resource" "build_ecr_image_db_init" {
   triggers = {
-    folder_path = sha1(join("", [for f in fileset("../../db", "*") : filesha1("../../db/${f}")]))
+    folder_path = sha1(join("", [for f in fileset("../../db", "**") : filesha1("../../db/${f}")]))
     # handler_file_path = filemd5("../../db/handler.py")
     # docker_file_path  = filemd5("../../db/Dockerfile")
   }

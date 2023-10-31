@@ -18,7 +18,7 @@ terraform {
   }
   backend "s3" {
     bucket = "${STATE_BUCKET_NAME}"
-    key    = "root"
+    key    = "root/features-api"
     region = "${AWS_REGION}"
   }
 }
