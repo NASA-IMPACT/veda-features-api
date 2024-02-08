@@ -2,8 +2,8 @@ module "ecs_cluster" {
   source = "../modules/aws_ecs_service"
   environment = var.env
   region      = var.region
-  vpc_id      = module.networking.vpc_id
-  subnet_ids  = module.networking.private_subnets_id
+  vpc_id      = "${data.aws_vpc.vpc.id}"
+  subnet_ids  = data.aws_subnets.private_subnet_ids.ids
 
   service_name       = "${var.project_name}-service"
   service_port       = var.service_port
@@ -65,7 +65,6 @@ module "ecs_cluster" {
       value = "*"
     },
     {
-      // stupid hack b/c of FastAPI and Starlette bug
       name = "FAST_API_SCHEME"
       value = "${var.ecs_protocol}"
     },
@@ -78,10 +77,10 @@ module "ecs_cluster" {
   container_ingress_cidrs = ["0.0.0.0/0"]
   container_ingress_sg_ids = []
 
-  use_adot_as_sidecar = true
+  use_adot_as_sidecar = false
   use_ecr = true
-  ecr_repository_arn  = module.ecr_registry.registry_arn
-  image = "${module.ecr_registry.repository_url}:latest"
+  ecr_repository_arn  = aws_ecr_repository.service.arn
+  image = "${aws_ecr_repository.service.repository_url}:latest"
 
   load_balancer = true
   lb_type = "application"
