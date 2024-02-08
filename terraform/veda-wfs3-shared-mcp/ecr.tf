@@ -50,7 +50,7 @@ data "aws_iam_policy_document" "deploy" {
 }
 
 resource "aws_ecr_repository" "service" {
-  name = "tf-${var.registry_name}-${var.env}"
+  name = "tf-${var.registry_name}-${var.env}-v2"
   image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {

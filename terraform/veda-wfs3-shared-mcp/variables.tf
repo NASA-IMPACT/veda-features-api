@@ -31,14 +31,15 @@ variable default_secret {
   type = map
 }
 
-variable "dns_zone_name" {
-}
-
-variable "dns_subdomain" {
-
-}
-
+#variable "dns_zone_name" {
+#}
+#
+#variable "dns_subdomain" {
+#
+#}
 variable "alb_protocol" {}
+
+variable "ecs_protocol" {}
 
 variable "vpc_id" {
   type        = string

@@ -20,7 +20,7 @@ resource "aws_secretsmanager_secret" "config" {
 }
 
 resource "aws_secretsmanager_secret" "db_config" {
-  name                    = "${var.project_name}-${var.env}-db-config-v1"
+  name                    = "${var.project_name}-${var.env}-db-config-v2"
   kms_key_id              = data.aws_kms_key.secretsmanager.id
   tags                    = var.tags
 }

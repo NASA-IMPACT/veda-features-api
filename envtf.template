@@ -3,3 +3,4 @@
 # run `./scripts/sync-env.sh` to quickly dump secret manager values to a file
 ######################################################################
 export TF_VAR_vpc_id=''
+export TF_VAR_cloudfront_distribution_id=''

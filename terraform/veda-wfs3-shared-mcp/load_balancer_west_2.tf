@@ -65,7 +65,7 @@ resource "aws_security_group" "https_web_inbound_sg" {
 resource "aws_alb" "alb_ecs" {
   name            = "tf-${var.project_name}-${var.env}-alb"
   subnets         = data.aws_subnets.public_subnet_ids.ids
-  security_groups = concat(["${data.aws_security_group.default.id}"], [aws_security_group.https_web_inbound_sg.id])
+  security_groups = concat(["${data.aws_security_group.default.id}"], [aws_security_group.web_inbound_sg.id, aws_security_group.https_web_inbound_sg.id])
 
   tags = merge({
     Name        = "tf-${var.project_name}-alb"
@@ -100,24 +100,10 @@ resource "aws_alb_target_group" "alb_target_group" {
   ]
 }
 
-#resource "aws_alb_listener" "alb_listener_ecs" {
-#  load_balancer_arn = aws_alb.alb_ecs.arn
-#  port              = 80
-#  protocol          = var.alb_protocol
-#  depends_on        = [aws_alb_target_group.alb_target_group]
-#
-#  default_action {
-#    target_group_arn = aws_alb_target_group.alb_target_group.arn
-#    type             = "forward"
-#  }
-#}
-
 resource "aws_alb_listener" "alb_listener_ecs" {
   load_balancer_arn = aws_alb.alb_ecs.arn
-  port              = 443
+  port              = 80
   protocol          = var.alb_protocol
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = aws_acm_certificate.cert.arn
   depends_on        = [aws_alb_target_group.alb_target_group]
 
   default_action {
@@ -125,3 +111,17 @@ resource "aws_alb_listener" "alb_listener_ecs" {
     type             = "forward"
   }
 }
+
+#resource "aws_alb_listener" "alb_listener_ecs" {
+#  load_balancer_arn = aws_alb.alb_ecs.arn
+#  port              = 443
+#  protocol          = var.alb_protocol
+#  ssl_policy        = "ELBSecurityPolicy-2016-08"
+#  certificate_arn   = aws_acm_certificate.cert.arn
+#  depends_on        = [aws_alb_target_group.alb_target_group]
+#
+#  default_action {
+#    target_group_arn = aws_alb_target_group.alb_target_group.arn
+#    type             = "forward"
+#  }
+#}

@@ -10,7 +10,8 @@ echo $psqloutput | tee /dev/stderr
 echo "######## END DB SETUP ########" | tee /dev/stderr
 
 if [ "$ENVIRONMENT" == "prod" ]; then
-  /opt/bitnami/python/bin/uvicorn fast_api_main:app --proxy-headers --forwarded-allow-ips="*"  --host 0.0.0.0 --port 8080
+  echo "[ ENVIRONMENT PROD WITH ROOT PATH ]"
+  /opt/bitnami/python/bin/uvicorn fast_api_main:app --proxy-headers --forwarded-allow-ips="*"  --host 0.0.0.0 --port 8080 --root-path=/api/features
 elif [ "$ENVIRONMENT" == "dev" ]; then
   /opt/bitnami/python/bin/uvicorn fast_api_main:app --proxy-headers --forwarded-allow-ips="*"  --host 0.0.0.0 --port 8080
 elif [ "$ENVIRONMENT" == "west2-staging" ]; then

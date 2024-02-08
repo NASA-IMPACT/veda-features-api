@@ -66,7 +66,7 @@ module "ecs_cluster" {
     },
     {
       name = "FAST_API_SCHEME"
-      value = "https"
+      value = "${var.ecs_protocol}"
     },
     {
       name = "TIPG_CATALOG_TTL"
