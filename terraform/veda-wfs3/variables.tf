@@ -37,6 +37,12 @@ variable "db_password" {
   sensitive   = true
 }
 
+variable "db_encrypted" {
+  description = "Whether RDS storage should be encrypted"
+  type        = bool
+  default     = false
+}
+
 variable "dns_zone_name" {
 }
 
