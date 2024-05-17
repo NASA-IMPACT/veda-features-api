@@ -141,7 +141,7 @@ resource "aws_lambda_function" "lambda" {
   role             = aws_iam_role.lambda_exec_role.arn
   handler          = "lambda_function.lambda_handler"
   source_code_hash = data.archive_file.archive.output_base64sha256
-  runtime          = "python3.7"
+  runtime          = "python3.9"
   publish          = true
   tags             = var.tags
 }

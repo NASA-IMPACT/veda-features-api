@@ -20,6 +20,13 @@ def lambda_handler(event, context):
         s3_filename_no_ext = os.path.splitext(s3_filename_target)[0]
         print(f"[ S3 FILENAME NO EXT ]: {s3_filename_no_ext}")
 
+        # bail out if .gpkg for now
+        if s3_filename_target.endswith(".gpkg"):
+            return {
+                'statusCode': 200,
+                'body': json.dumps('Hello from Lambda!')
+            }
+
         bucket_key_prefix = "EIS/FEDSoutput/Snapshot/"
         if s3_filename_no_ext.startswith("lf_"):
             bucket_key_prefix = "EIS/FEDSoutput/LFArchive/"
