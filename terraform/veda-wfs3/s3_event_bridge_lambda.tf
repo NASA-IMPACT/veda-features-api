@@ -144,6 +144,12 @@ resource "aws_lambda_function" "lambda" {
   runtime          = "python3.9"
   publish          = true
   tags             = var.tags
+
+  environment {
+    variables = {
+      LOG_GROUP_NAME = "/aws/lambda/s3-event-bridge-to-sfn-execute-${var.project_name}-${var.env}"
+    }
+  }
 }
 
 resource "aws_cloudwatch_log_group" "group" {
