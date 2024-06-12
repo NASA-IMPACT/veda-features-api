@@ -1,10 +1,10 @@
 ########################################################################
 # Data Bits
 ########################################################################
-data "aws_ecr_repository" "service" {
-  count = var.use_ecr ? 1 : 0
-  name  = var.ecr_repository_name
-}
+# data "aws_ecr_repository" "service" {
+#   count = var.use_ecr ? 1 : 0
+#   name  = var.ecr_repository_name
+# }
 
 
 ########################################################################
@@ -64,7 +64,7 @@ data "aws_iam_policy_document" "ecs_ecr_access_attachment" {
     ]
 
     resources = [
-      data.aws_ecr_repository.service[0].arn,
+      var.ecr_repository_arn,
     ]
   }
 

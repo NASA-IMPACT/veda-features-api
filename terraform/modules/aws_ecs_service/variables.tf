@@ -114,6 +114,8 @@ variable "use_adot_as_sidecar" {
 }
 
 variable "ecr_repository_name" {}
+variable "ecr_repository_arn" {}
+
 variable "image" {}
 
 variable "load_balancer" {
