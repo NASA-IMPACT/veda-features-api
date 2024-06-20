@@ -52,3 +52,5 @@ variable "dns_subdomain" {
 
 variable "alb_protocol" {}
 
+variable "ecs_protocol" {}
+
