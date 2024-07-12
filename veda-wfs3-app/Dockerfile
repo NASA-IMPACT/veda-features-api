@@ -8,16 +8,16 @@ ENV LANG C.UTF-8
 
 RUN apt-get -y update \
     && apt-get install -y --no-install-recommends \
-            apt-utils \
-            build-essential \
-            curl \
-            binutils \
-            git \
-            jq \
-            locales \
-            tzdata \
-            wget \
-            postgresql-client-13 \
+    apt-utils \
+    build-essential \
+    curl \
+    binutils \
+    git \
+    jq \
+    locales \
+    tzdata \
+    wget \
+    postgresql-client \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
