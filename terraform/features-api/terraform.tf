@@ -18,7 +18,7 @@ terraform {
   }
   backend "s3" {
     bucket = "ghgc-smce-tf-shared-state"
-    key    = "root/features-api"
+    key    = "root/features-api-dev"
     region = "us-west-2"
   }
 }

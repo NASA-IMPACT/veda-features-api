@@ -25,9 +25,9 @@ data "aws_iam_policy_document" "ecs_assume_role_policy" {
 }
 
 resource "aws_iam_role" "ecs_execution_role" {
-  name               = "${var.service_name}-${var.environment}_ecs_task_execution_role"
-  assume_role_policy = data.aws_iam_policy_document.ecs_assume_role_policy.json
-  tags               = var.tags
+  name                 = "${var.service_name}-${var.environment}_ecs_task_execution_role"
+  assume_role_policy   = data.aws_iam_policy_document.ecs_assume_role_policy.json
+  tags                 = var.tags
   permissions_boundary = local.permissions_boundary
 }
 
@@ -123,15 +123,15 @@ resource "aws_security_group_rule" "service_egress" {
 // bind the ECS service's SG as a source
 // to the VPC's default SG if it was passed as a variable
 resource "aws_security_group_rule" "rds_sg_allows_ecs_sg" {
-  for_each   = {
-    for index, rule in var.additional_sg_ingress_rules_for_vpc_default_sg:
+  for_each = {
+    for index, rule in var.additional_sg_ingress_rules_for_vpc_default_sg :
     rule.primary_key => rule # this works b/c one key has to be primary
   }
-  security_group_id = each.value.vpc_default_sg_id
-  type              = "ingress"
-  from_port         = each.value.from_port
-  to_port           = each.value.to_port
-  protocol          = each.value.protocol
+  security_group_id        = each.value.vpc_default_sg_id
+  type                     = "ingress"
+  from_port                = each.value.from_port
+  to_port                  = each.value.to_port
+  protocol                 = each.value.protocol
   source_security_group_id = aws_security_group.service.id
 }
 
@@ -173,7 +173,7 @@ resource "aws_security_group_rule" "service_ingress_lb" {
 # ECS
 ########################################################################
 resource "aws_ecs_cluster" "service" {
-  name = "tf-${var.service_name}-${var.environment}"
+  name = "tf-${var.service_name}-${var.environment}-dev"
   tags = var.tags
   setting {
     name  = "containerInsights"
@@ -196,8 +196,8 @@ resource "aws_ecs_service" "service" {
   deployment_minimum_healthy_percent = 100
 
   network_configuration {
-    subnets          = var.subnet_ids
-    security_groups  = [aws_security_group.service.id]
+    subnets         = var.subnet_ids
+    security_groups = [aws_security_group.service.id]
     //assign_public_ip = true
   }
 
@@ -220,22 +220,22 @@ resource "aws_ecs_task_definition" "service" {
   tags                     = var.tags
   execution_role_arn       = aws_iam_role.ecs_execution_role.arn
   task_role_arn            = aws_iam_role.ecs_execution_role.arn
-  container_definitions    = templatefile("${path.module}/container_definition.tftpl",
-      {
-          service_name          = var.service_name
-          environment           = var.environment
-          image                 = var.image
-          container_command     = length(var.container_command) > 0 ? jsonencode(var.container_command) : ""
-          working_directory     = var.container_working_directory
-          container_secrets     = jsonencode(var.container_secrets)
-          container_environment = jsonencode(var.container_environment)
-          service_protocol      = var.service_protocol
-          service_port          = var.service_port
-          use_adot_as_sidecar   = var.use_adot_as_sidecar ? "on" : ""
-          log_group             = aws_cloudwatch_log_group.service.name
-          region                = var.region
-        }
-      )
+  container_definitions = templatefile("${path.module}/container_definition.tftpl",
+    {
+      service_name          = var.service_name
+      environment           = var.environment
+      image                 = var.image
+      container_command     = length(var.container_command) > 0 ? jsonencode(var.container_command) : ""
+      working_directory     = var.container_working_directory
+      container_secrets     = jsonencode(var.container_secrets)
+      container_environment = jsonencode(var.container_environment)
+      service_protocol      = var.service_protocol
+      service_port          = var.service_port
+      use_adot_as_sidecar   = var.use_adot_as_sidecar ? "on" : ""
+      log_group             = aws_cloudwatch_log_group.service.name
+      region                = var.region
+    }
+  )
 }
 
 #######################################################################
@@ -247,19 +247,19 @@ resource "aws_ecs_task_definition" "service" {
 data "aws_iam_policy_document" "api_ecs_to_otel_access" {
   statement {
     actions = [
-        "xray:PutTraceSegments",
-        "xray:PutTelemetryRecords",
-        "xray:GetSamplingRules",
-        "xray:GetSamplingTargets",
-        "xray:GetSamplingStatisticSummaries",
-        "cloudwatch:PutMetricData",
-        "ec2:DescribeVolumes",
-        "ec2:DescribeTags",
-        "ssm:GetParameters"
+      "xray:PutTraceSegments",
+      "xray:PutTelemetryRecords",
+      "xray:GetSamplingRules",
+      "xray:GetSamplingTargets",
+      "xray:GetSamplingStatisticSummaries",
+      "cloudwatch:PutMetricData",
+      "ec2:DescribeVolumes",
+      "ec2:DescribeTags",
+      "ssm:GetParameters"
     ]
 
     resources = [
-       "*",
+      "*",
     ]
   }
 }
