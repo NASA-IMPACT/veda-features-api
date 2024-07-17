@@ -79,6 +79,10 @@ module "ecs_cluster" {
       // stupid hack b/c of FastAPI and Starlette bug
       name  = "FAST_API_SCHEME"
       value = "http" //quick hack for now, TODO: include 'contains' function
+    },
+    {
+      name  = "TIPG_CATALOG_TTL"
+      value = "300"
     }
   ]
 
@@ -97,7 +101,7 @@ module "ecs_cluster" {
   lb_security_group_id = aws_security_group.web_inbound_sg.id
   lb_container_port    = var.service_port
 
-  tags = var.tags
+  tags                             = var.tags
   permissions_boundary_policy_name = var.permissions_boundary_policy_name
 }
 

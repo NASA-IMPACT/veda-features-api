@@ -13,7 +13,8 @@ from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.middleware.cors import CORSMiddleware
 from tipg.db import close_db_connection, connect_to_db, register_collection_catalog
 from tipg.factory import Endpoints as FeaturesEndpoints
-from tipg.settings import PostgresSettings
+from tipg.settings import PostgresSettings, APISettings, DatabaseSettings
+from tipg.middleware import CatalogUpdateMiddleware
 from typing import Callable
 
 logger = logging.getLogger(__name__)
@@ -91,6 +92,8 @@ postgresql_settings = PostgresSettings(**{
     "postgres_port": db_config["port"],
     "postgres_dbname": db_config["dbname"]
 })
+api_settings = APISettings()
+db_settings = DatabaseSettings()
 
 endpoints = FeaturesEndpoints(router=APIRouter(route_class=LoggerRouteHandler))
 app.include_router(endpoints.router, tags=["OGC Features"])
@@ -103,6 +106,19 @@ app.add_middleware(
     allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+if api_settings.catalog_ttl:
+    app.add_middleware(
+        CatalogUpdateMiddleware,
+        ttl=api_settings.catalog_ttl,
+        schemas=db_settings.schemas,
+        tables=db_settings.tables,
+        exclude_tables=db_settings.exclude_tables,
+        exclude_table_schemas=db_settings.exclude_table_schemas,
+        functions=db_settings.functions,
+        exclude_functions=db_settings.exclude_functions,
+        exclude_function_schemas=db_settings.exclude_function_schemas,
+        spatial=db_settings.only_spatial_tables,
+    )
 
 
 @app.on_event("startup")
@@ -130,13 +146,13 @@ async def ping():
     return JSONResponse(status_code=200, content={"ping": "pong"})
 
 
-# @app.get("/refresh")
-# async def refresh(request: Request):
-#     """Return parsed catalog data for testing."""
-#     with tracer.start_as_current_span("refresh"):
-#         refresh_counter.add(1, {"refresh": "count"})
-#         await connect_to_db(app, settings=postgresql_settings)
-#         await register_collection_catalog(app)
-#         return JSONResponse(status_code=200, content={"status": "refreshed"})
+@app.get("/refresh")
+async def refresh(request: Request):
+    """Return parsed catalog data for testing."""
+    with tracer.start_as_current_span("refresh"):
+        refresh_counter.add(1, {"refresh": "count"})
+        await connect_to_db(app, settings=postgresql_settings)
+        await register_collection_catalog(app)
+        return JSONResponse(status_code=200, content={"status": "refreshed"})
 
 FastAPIInstrumentor.instrument_app(app, excluded_urls="/conformance,/healthz")

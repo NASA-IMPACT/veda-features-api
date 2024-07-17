@@ -45,7 +45,7 @@ resource "aws_db_instance" "db" {
   db_name        = "ghgc"
   identifier     = "${var.project_name}-${var.env}"
   engine         = "postgres"
-  engine_version = "14.3"
+  engine_version = "14.9"
   // https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
   allocated_storage           = 100
   max_allocated_storage       = 500
