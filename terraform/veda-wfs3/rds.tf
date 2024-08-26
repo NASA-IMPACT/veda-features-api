@@ -45,7 +45,7 @@ resource "aws_db_instance" "db" {
   db_name                  = "veda"
   identifier               = "${var.project_name}-${var.env}"
   engine                   = "postgres"
-  engine_version           = "14.7"
+  engine_version           = "14.10"
   // https://docs.aws.amazon.com/AmazonRDS/latest/APIReference/API_CreateDBInstance.html
   allocated_storage        = 100
   max_allocated_storage    = 500
