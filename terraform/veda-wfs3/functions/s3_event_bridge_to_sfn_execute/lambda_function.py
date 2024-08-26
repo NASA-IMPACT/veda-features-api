@@ -4,6 +4,7 @@ import os
 import base64
 import ast
 import json
+#mwaa_env_name = 'veda-pipeline-dev-mwaa'
 mwaa_env_name = 'veda-pipeline-staging-mwaa'
 dag_name = 'veda_discover'
 mwaa_cli_command = 'dags trigger'
@@ -20,24 +21,9 @@ def lambda_handler(event, context):
         s3_filename_no_ext = os.path.splitext(s3_filename_target)[0]
         print(f"[ S3 FILENAME NO EXT ]: {s3_filename_no_ext}")
 
-        if s3_filename_target.endswith(".gpkg"):
-            return {
-                'statusCode': 200,
-                'body': json.dumps('Hello from Lambda!')
-            }
-
-        if s3_event_key.startswith("EIS/FEDSoutput-v3"):
-            return {
-                'statusCode': 200,
-                'body': json.dumps('Hello from Lambda!')
-            }
-
         bucket_key_prefix = "EIS/FEDSoutput/Snapshot/"
-        if s3_event_key.startswith("EIS/FEDSoutput-v3"):
-            bucket_key_prefix = "EIS/FEDSoutput-v3/Snapshot/"
         if s3_filename_no_ext.startswith("lf_"):
             bucket_key_prefix = "EIS/FEDSoutput/LFArchive/"
-
 
         # get web token
         mwaa_cli_token = client.create_cli_token(

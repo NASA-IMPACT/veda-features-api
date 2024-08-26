@@ -54,6 +54,7 @@ resource "aws_db_instance" "db" {
   db_subnet_group_name     = aws_db_subnet_group.db.name
   vpc_security_group_ids   = module.networking.security_groups_ids
   skip_final_snapshot      = true
+  ca_cert_identifier       = "rds-ca-rsa4096-g1"
   apply_immediately        = true
   backup_retention_period  = 7
   username                 = "postgres"
