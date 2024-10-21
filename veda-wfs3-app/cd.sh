@@ -11,30 +11,30 @@ if [[ -z "$TARGET_PROJECT_NAME" ]]; then
 fi
 
 # build and tag local image
-docker build -t veda-wfs3-api:latest .
+docker build -t "$TARGET_PROJECT_NAME-$TARGET_ENVIRONMENT":latest .
 
 # login to ECR through docker
 echo "[ LOGIN ]:..."
-AWS_PROFILE=uah2 aws ecr describe-repositories \
+AWS_PROFILE=$AWS_PROFILE_NAME aws ecr describe-repositories \
   | jq '.repositories | map(.repositoryUri)' \
   | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
   | sed -E 's/"|,//g' \
-  | xargs -I {} bash -c "AWS_PROFILE=uah2 aws ecr get-login-password | docker login --username AWS --password-stdin {}"
+  | xargs -I {} bash -c "AWS_PROFILE=$AWS_PROFILE_NAME aws ecr get-login-password | docker login --username AWS --password-stdin {}"
 
 # tag local image with remote ECR repository name:tag
 echo "[ TAGGING ]:..."
-AWS_PROFILE=uah2 aws ecr describe-repositories \
+AWS_PROFILE=$AWS_PROFILE_NAME aws ecr describe-repositories \
   | jq '.repositories | map(.repositoryUri)' \
   | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
   | sed -E 's/"|,//g' \
   | xargs -I {} docker images --format "{{json . }}" {} \
   | grep '"Tag":"latest"' \
   | jq '"\(.Repository):\(.Tag)"' \
-  | xargs -I{} docker tag veda-wfs3-api:latest {}
+  | xargs -I{} docker tag "$TARGET_PROJECT_NAME-$TARGET_ENVIRONMENT":latest {}
 
-# push ECR tagged image to ECR
+# # push ECR tagged image to ECR
 echo "[ PUSH ]:..."
-AWS_PROFILE=uah2 aws ecr describe-repositories \
+AWS_PROFILE=$AWS_PROFILE_NAME aws ecr describe-repositories \
   | jq '.repositories | map(.repositoryUri)' \
   | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
   | sed -E 's/"|,//g' \
@@ -45,11 +45,11 @@ AWS_PROFILE=uah2 aws ecr describe-repositories \
 
 # tell ECS to use new image (blue-green)
 echo "[ RELOAD ]:..."
-AWS_PROFILE=uah2 aws ecs list-clusters \
+AWS_PROFILE=$AWS_PROFILE aws ecs list-clusters \
   | jq '.clusterArns[0]' \
   | grep $TARGET_PROJECT_NAME | grep $TARGET_ENVIRONMENT \
   | sed -E 's/"|,//g' \
-  | AWS_PROFILE=uah2 xargs -I{}  aws ecs describe-clusters --cluster={} \
+  | AWS_PROFILE=$AWS_PROFILE xargs -I{}  aws ecs describe-clusters --cluster={} \
   | jq '.clusters[0].clusterName' \
-  | AWS_PROFILE=uah2 xargs -I{}  aws ecs update-service --cluster {} --service {} --task-definition {} --force-new-deployment > /dev/null
+  | AWS_PROFILE=$AWS_PROFILE xargs -I{}  aws ecs update-service --cluster {} --service {} --task-definition {} --force-new-deployment > /dev/null
 echo "[ SUCCESS ]:..."
