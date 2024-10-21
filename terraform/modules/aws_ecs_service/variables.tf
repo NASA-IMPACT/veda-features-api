@@ -113,7 +113,8 @@ variable "use_adot_as_sidecar" {
   description = "If enabled, add ADOT task definition to existing task definitions"
 }
 
-variable "ecr_repository_name" {}
+variable "ecr_repository_arn" {}
+
 variable "image" {}
 
 variable "load_balancer" {
